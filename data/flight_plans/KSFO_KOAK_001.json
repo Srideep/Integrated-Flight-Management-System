@@ -1,0 +1,26 @@
+{
+  "name": "KSFO_KOAK_001",
+  "departure": "KSFO",
+  "arrival": "KOAK",
+  "waypoints": [
+    {
+      "identifier": "KSFO",
+      "latitude": 37.6213,
+      "longitude": -122.379,
+      "altitude": 13
+    },
+    {
+      "identifier": "SFO",
+      "latitude": 37.6189,
+      "longitude": -122.375,
+      "altitude": null
+    },
+    {
+      "identifier": "KOAK",
+      "latitude": 37.7214,
+      "longitude": -122.2208,
+      "altitude": 9
+    }
+  ],
+  "created_date": "2025-06-16T15:42:39.096246"
+}
