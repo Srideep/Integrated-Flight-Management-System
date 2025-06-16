@@ -1,8 +1,9 @@
+modules = ["python-3.11"]
 [nix]
 channel = "stable-24_05"
 
 [workflows]
-runButton = "Setup FMS Project"
+runButton = "Run FMS Tests"
 
 [[workflows.workflow]]
 name = "Setup FMS Project"
@@ -12,3 +13,21 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "python setup_fms_project.py"
+
+[[workflows.workflow]]
+name = "Run FMS Tests"
+author = 1733762
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python run_tests.py"
+
+[[workflows.workflow]]
+name = "Run FMS Demo"
+author = 1733762
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python demo.py"
