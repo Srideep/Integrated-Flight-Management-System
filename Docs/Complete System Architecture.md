@@ -1,8 +1,6 @@
-I'll implement the Flight Data Module based on the Project Diagram and FMS Modules structure, creating an integrated system using MATLAB, Simulink, Stateflow, and Python components.I've created a comprehensive integrated Flight Management System implementation that follows your Project Diagram flow and incorporates all the FMS modules. Here's what I've built:
-
 ## 🚀 **Complete System Architecture**
 
-The implementation follows the exact flow from your diagram:
+The implementation follows the following flow diagram:
 **Nav Database → Flight Plan Entry → Flight Plan Storage → FMS Mode Logic → Navigation Calculations → Guidance Law → Aircraft Dynamics → Sensor Models → Flight Data Display**
 
 ## 🐍 **Python Components** (Data Management Layer)
