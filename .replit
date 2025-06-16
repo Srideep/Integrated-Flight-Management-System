@@ -1,5 +1,6 @@
 [nix]
 channel = "stable-24_05"
+packages = ["glibcLocales", "libxcrypt", "pkg-config", "xsimd"]
 
 [workflows]
 runButton = "Setup FMS Project"
