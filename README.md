@@ -97,51 +97,47 @@ FMS_Integrated_System/
 
 ## 🚀 Quick Start
 
-### 1. Environment Setup
+### 1. Initial Project Setup
+Click the **Run** button above, or execute:
 ```bash
-# Clone repository
-git clone <repository-url>
-cd FMS_Integrated_System
-
-# Setup Python environment
-python -m venv fms_env
-source fms_env/bin/activate  # On Windows: fms_env\Scripts\activate
-pip install -r requirements.txt
+python setup_fms_project.py
 ```
 
-### 2. Initialize Navigation Database
-```python
-# Run in Python to setup navigation database
-from python_modules.nav_database.nav_data_manager import NavigationDatabase
-from python_modules.flight_planning.flight_plan_entry import create_sample_flight_plans
+This will:
+- Create the navigation database with sample waypoints
+- Generate sample flight plans
+- Run initial system tests
+- Verify Python components are working
 
-# Initialize database with sample data
-nav_db = NavigationDatabase()
-create_sample_flight_plans()
-print("Navigation database initialized successfully")
+### 2. Test Individual Components
+```bash
+# Test navigation database
+python tests/test_nav_database.py
+
+# Test flight planning system  
+python tests/test_flight_planning.py
 ```
 
-### 3. Launch MATLAB Project
+### 3. MATLAB Integration (Phase 5)
+Once Python components are working:
 ```matlab
 % In MATLAB Command Window
-open('FMS_Integrated_System.prj')
+% Configure Python path
+if count(py.sys.path, pwd) == 0
+    insert(py.sys.path, int32(0), pwd);
+end
 
-% Initialize the complete system
-setup_fms_project()
-initialize_model()
+% Test MATLAB-Python bridge
+test_matlab_python_bridge()
 ```
 
-### 4. Start Integrated System
-```matlab
-% Create and run master model
-create_master_fms_model()
-
-% Launch flight data display
-app = FDD_Display_App();
-
-% Run system integration tests
-run_fms_integration_tests()
-```
+### 4. Development Phases
+This project follows an incremental development approach:
+- **Phase 1**: ✅ Navigation Database (Complete)
+- **Phase 2**: ✅ Flight Planning (Complete)  
+- **Phase 3**: Navigation Math (Next)
+- **Phase 4**: Stateflow Logic (Next)
+- **Phase 5**: MATLAB Integration (Next)
 
 ## 🗄️ Navigation Database System
 

@@ -1,0 +1,113 @@
+
+#!/usr/bin/env python3
+"""
+FMS Integrated System - Quick Setup Script
+Sets up the navigation database and creates sample flight plans
+"""
+
+import os
+import sys
+from python_modules.nav_database.nav_data_manager import NavigationDatabase
+from python_modules.flight_planning.flight_plan_manager import FlightPlanManager
+
+def setup_fms_project():
+    """Initialize the complete FMS project"""
+    print("=== FMS Integrated System Setup ===")
+    print()
+    
+    # 1. Initialize Navigation Database
+    print("1. Initializing Navigation Database...")
+    try:
+        nav_db = NavigationDatabase('data/nav_database/navigation.db')
+        print("   ✓ Navigation database created successfully")
+        
+        # List available waypoints
+        waypoints = nav_db.list_all_waypoints()
+        print(f"   ✓ Database contains {len(waypoints)} waypoints:")
+        for wp in waypoints:
+            print(f"     - {wp.identifier} ({wp.waypoint_type}): {wp.latitude:.4f}, {wp.longitude:.4f}")
+    except Exception as e:
+        print(f"   ✗ Navigation database setup failed: {e}")
+        return False
+    
+    print()
+    
+    # 2. Create Sample Flight Plans
+    print("2. Creating Sample Flight Plans...")
+    try:
+        fp_manager = FlightPlanManager()
+        
+        # Sample flight plan: KSFO to KOAK via SFO VOR
+        plan1 = fp_manager.create_flight_plan(
+            name="KSFO_KOAK_001",
+            departure="KSFO",
+            arrival="KOAK",
+            route=["SFO"]
+        )
+        
+        if plan1:
+            fp_manager.save_flight_plan(plan1, "data/flight_plans/KSFO_KOAK_001.json")
+            print("   ✓ Created flight plan: KSFO → SFO → KOAK")
+        
+        # Sample flight plan: KOAK to KSFO via FAITH
+        plan2 = fp_manager.create_flight_plan(
+            name="KOAK_KSFO_001", 
+            departure="KOAK",
+            arrival="KSFO",
+            route=["FAITH"]
+        )
+        
+        if plan2:
+            fp_manager.save_flight_plan(plan2, "data/flight_plans/KOAK_KSFO_001.json")
+            print("   ✓ Created flight plan: KOAK → FAITH → KSFO")
+            
+    except Exception as e:
+        print(f"   ✗ Flight plan creation failed: {e}")
+        return False
+    
+    print()
+    
+    # 3. Run Tests
+    print("3. Running System Tests...")
+    
+    # Import and run test modules
+    sys.path.append('tests')
+    from test_nav_database import test_navigation_database
+    from test_flight_planning import test_flight_planning
+    
+    if test_navigation_database():
+        print("   ✓ Navigation database tests passed")
+    else:
+        print("   ✗ Navigation database tests failed")
+        return False
+        
+    if test_flight_planning():
+        print("   ✓ Flight planning tests passed")
+    else:
+        print("   ✗ Flight planning tests failed")
+        return False
+    
+    print()
+    print("=== FMS Setup Complete ===")
+    print()
+    print("Next Steps:")
+    print("1. For MATLAB integration, open MATLAB and run:")
+    print("   >> cd matlab_modules")
+    print("   >> test_matlab_python_bridge")
+    print()
+    print("2. To test individual components:")
+    print("   python tests/test_nav_database.py")
+    print("   python tests/test_flight_planning.py")
+    print()
+    print("3. The navigation database is ready at: data/nav_database/navigation.db")
+    print("4. Sample flight plans are saved in: data/flight_plans/")
+    
+    return True
+
+if __name__ == "__main__":
+    # Create necessary directories
+    os.makedirs("data/nav_database", exist_ok=True)
+    os.makedirs("data/flight_plans", exist_ok=True)
+    
+    success = setup_fms_project()
+    sys.exit(0 if success else 1)
