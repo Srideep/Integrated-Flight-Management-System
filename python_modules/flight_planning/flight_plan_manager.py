@@ -1,4 +1,3 @@
-
 import json
 from datetime import datetime
 from typing import List, Optional
@@ -27,15 +26,15 @@ class FlightPlan:
 class FlightPlanManager:
     def __init__(self):
         self.nav_db = NavigationDatabase()
-        
+
     def create_flight_plan(self, name: str, departure: str, arrival: str, 
                           route: List[str]) -> Optional[FlightPlan]:
         """Create flight plan from waypoint identifiers"""
         waypoints = []
-        
+
         # Build complete route: departure + route + arrival
         full_route = [departure] + route + [arrival]
-        
+
         for wp_id in full_route:
             wp = self.nav_db.find_waypoint(wp_id)
             if wp:
@@ -49,7 +48,7 @@ class FlightPlanManager:
             else:
                 print(f"Warning: Waypoint {wp_id} not found")
                 return None
-                
+
         return FlightPlan(
             name=name,
             departure=departure,
@@ -57,8 +56,8 @@ class FlightPlanManager:
             waypoints=waypoints,
             created_date=datetime.now().isoformat()
         )
-        
-    def save_flight_plan(self, flight_plan: FlightPlan, filename: str) -> bool:
+
+    def save_flight_plan(self, flight_plan, filename=None):
         """Save flight plan to JSON file"""
         try:
             with open(filename, 'w') as f:
@@ -67,17 +66,17 @@ class FlightPlanManager:
         except Exception as e:
             print(f"Error saving flight plan: {e}")
             return False
-            
+
     def load_flight_plan(self, filename: str) -> Optional[FlightPlan]:
         """Load flight plan from JSON file"""
         try:
             with open(filename, 'r') as f:
                 data = json.load(f)
-            
+
             # Convert waypoint dictionaries back to FlightPlanWaypoint objects
             waypoints = [FlightPlanWaypoint(**wp) for wp in data['waypoints']]
             data['waypoints'] = waypoints
-            
+
             return FlightPlan(**data)
         except Exception as e:
             print(f"Error loading flight plan: {e}")
@@ -86,7 +85,7 @@ class FlightPlanManager:
 if __name__ == "__main__":
     # Basic test
     fp_manager = FlightPlanManager()
-    
+
     # Create test flight plan
     plan = fp_manager.create_flight_plan(
         name="TEST_SFO_OAK",
@@ -94,7 +93,7 @@ if __name__ == "__main__":
         arrival="KOAK", 
         route=["SFO"]
     )
-    
+
     if plan:
         print(f"Created flight plan: {plan.name}")
         print(f"Route has {len(plan.waypoints)} waypoints")
