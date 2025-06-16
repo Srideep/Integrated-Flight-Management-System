@@ -36,4 +36,4 @@ codegen/
 .buildtool/
 
 #Other
-*.replit
+.replit
