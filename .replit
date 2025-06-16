@@ -12,4 +12,4 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python setup_fms_project.py"
+args = "python3 setup_fms_project.py"
