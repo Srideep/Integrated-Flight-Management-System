@@ -174,6 +174,11 @@ class FlightPlanManager:
             logger.error("No active plan to modify")
             return False
         
+        # Validate position
+        if position < 0 or position > len(self.active_plan.waypoints):
+            logger.error(f"Invalid position {position} for waypoint insertion")
+            return False
+        
         try:
             waypoint = self.nav_db.find_waypoint(wp_id)
             if not waypoint:
