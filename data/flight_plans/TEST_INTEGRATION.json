@@ -1,5 +1,5 @@
 {
-  "name": "KSFO_KOAK_001",
+  "name": "TEST_INTEGRATION",
   "departure": "KSFO",
   "arrival": "KOAK",
   "waypoints": [
@@ -16,9 +16,27 @@
       "identifier": "SFO",
       "latitude": 37.6189,
       "longitude": -122.375,
+      "altitude": 5000,
+      "speed": null,
+      "waypoint_type": "VOR",
+      "procedure_type": null
+    },
+    {
+      "identifier": "SFO",
+      "latitude": 37.6189,
+      "longitude": -122.375,
       "altitude": null,
       "speed": null,
       "waypoint_type": "VOR",
+      "procedure_type": null
+    },
+    {
+      "identifier": "FAITH",
+      "latitude": 37.2833,
+      "longitude": -122.0167,
+      "altitude": null,
+      "speed": null,
+      "waypoint_type": "WAYPOINT",
       "procedure_type": null
     },
     {
@@ -35,5 +53,5 @@
   "cruise_speed": 450,
   "route_distance": 0.0,
   "estimated_time": 0.0,
-  "created_date": "2025-06-18T19:31:10.984497"
+  "created_date": "2025-06-18T19:31:12.174657"
 }

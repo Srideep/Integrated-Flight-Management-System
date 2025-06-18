@@ -1,6 +1,5 @@
 
 import sqlite3
-import numpy as np
 from dataclasses import dataclass
 from typing import List, Optional
 
@@ -50,6 +49,9 @@ class NavigationDatabase:
         ''', test_waypoints)
         
         self.connection.commit()
+
+    def add_waypoint(self, waypoint):
+        self.waypoints.append(waypoint)
         
     def find_waypoint(self, identifier: str) -> Optional[Waypoint]:
         """Find waypoint by identifier"""
