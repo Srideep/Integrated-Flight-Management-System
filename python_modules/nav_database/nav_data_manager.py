@@ -51,7 +51,15 @@ class NavigationDatabase:
         self.connection.commit()
 
     def add_waypoint(self, waypoint):
-        self.waypoints.append(waypoint)
+        """Add a waypoint to the database"""
+        cursor = self.connection.cursor()
+        cursor.execute('''
+            INSERT OR REPLACE INTO waypoints 
+            (identifier, latitude, longitude, altitude, waypoint_type)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (waypoint.identifier, waypoint.latitude, waypoint.longitude, 
+              waypoint.altitude, waypoint.waypoint_type))
+        self.connection.commit()
         
     def find_waypoint(self, identifier: str) -> Optional[Waypoint]:
         """Find waypoint by identifier"""
