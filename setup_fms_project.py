@@ -32,10 +32,10 @@ def setup_fms_project():
     
     print()
     
-    # 2. Create Sample Flight Plans
-    print("2. Creating Sample Flight Plans...")
+    # 2. Create Sample Flight Plans and Test New Features
+    print("2. Creating Sample Flight Plans with FlightPlanManager...")
     try:
-        fp_manager = FlightPlanManager()
+        fp_manager = FlightPlanManager('data/nav_database/navigation.db')
         
         # Sample flight plan: KSFO to KOAK via SFO VOR
         plan1 = fp_manager.create_flight_plan(
@@ -60,6 +60,30 @@ def setup_fms_project():
         if plan2:
             fp_manager.save_flight_plan(plan2, "data/flight_plans/KOAK_KSFO_001.json")
             print("   ✓ Created flight plan: KOAK → FAITH → KSFO")
+        
+        # Test Active Plan Management
+        print("   Testing active plan management...")
+        fp_manager.set_active_plan(plan1)
+        current_leg = fp_manager.get_current_leg()
+        if current_leg:
+            start, end = current_leg
+            print(f"   ✓ Active plan set, current leg: {start.identifier} → {end.identifier}")
+        
+        # Test Flight Plan Modification
+        print("   Testing flight plan modification...")
+        original_count = len(fp_manager.active_plan.waypoints)
+        fp_manager.insert_waypoint("FAITH", 2)
+        new_count = len(fp_manager.active_plan.waypoints)
+        if new_count > original_count:
+            print("   ✓ Successfully inserted waypoint")
+        
+        # Test Navigation Sequencing
+        print("   Testing navigation sequencing...")
+        advances = 0
+        while not fp_manager.is_end_of_route() and advances < 5:
+            if fp_manager.advance_to_next_leg():
+                advances += 1
+        print(f"   ✓ Advanced through {advances} legs")
             
     except Exception as e:
         print(f"   ✗ Flight plan creation failed: {e}")
