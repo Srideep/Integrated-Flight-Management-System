@@ -91,3 +91,9 @@ if __name__ == "__main__":
         print(f"Found KSFO: {ksfo.latitude}, {ksfo.longitude}")
     else:
         print("KSFO not found")
+def insert_waypoint(self, waypoint, position):
+    if position < 0 or position > len(self.waypoints):
+        raise ValueError("Invalid position for waypoint insertion.")
+    
+    self.waypoints.insert(position, waypoint)
+    # Additional logging if necessary
