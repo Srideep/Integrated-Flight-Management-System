@@ -11,6 +11,7 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from nav_database.nav_data_manager import NavigationDatabase, Waypoint
+from nav_database.waypoint_database import WaypointDatabase
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -74,6 +75,7 @@ class FlightPlanManager:
     def __init__(self, nav_db_path: str = "data/nav_database/navigation.db"):
         """Initialize the Flight Plan Manager with navigation database"""
         self.nav_db = NavigationDatabase(nav_db_path)
+        self.waypoint_db = WaypointDatabase(nav_db_path)
         
         # Core State Management (Checklist Section 1)
         self.active_plan: Optional[FlightPlan] = None
@@ -446,6 +448,113 @@ class FlightPlanManager:
             "end_of_route": self.is_end_of_route(),
             "total_waypoints": len(self.active_plan.waypoints)
         }
+    
+    # ========================================================================
+    # ENHANCED WAYPOINT SEARCH AND MANAGEMENT
+    # ========================================================================
+    
+    def find_alternate_airports(self, position: Tuple[float, float], 
+                               radius_nm: float = 50) -> List[Dict[str, Any]]:
+        """Find alternate airports near a position using enhanced waypoint database"""
+        try:
+            lat, lon = position
+            airports = self.waypoint_db.find_waypoints_by_type("AIRPORT")
+            nearby_airports = []
+            
+            for airport in airports:
+                distance = self.waypoint_db.calculate_distance(lat, lon, 
+                                                             airport.latitude, 
+                                                             airport.longitude)
+                if distance <= radius_nm:
+                    nearby_airports.append({
+                        'identifier': airport.identifier,
+                        'latitude': airport.latitude,
+                        'longitude': airport.longitude,
+                        'distance_nm': distance,
+                        'region': airport.region,
+                        'country': airport.country
+                    })
+            
+            # Sort by distance
+            nearby_airports.sort(key=lambda x: x['distance_nm'])
+            logger.info(f"Found {len(nearby_airports)} alternate airports within {radius_nm}nm")
+            return nearby_airports
+            
+        except Exception as e:
+            logger.error(f"Failed to find alternate airports: {e}")
+            return []
+    
+    def find_navigation_aids(self, position: Tuple[float, float], 
+                           radius_nm: float = 100, 
+                           aid_type: str = "VOR") -> List[Dict[str, Any]]:
+        """Find navigation aids near a position"""
+        try:
+            lat, lon = position
+            navaids = self.waypoint_db.find_waypoints_by_type(aid_type)
+            nearby_navaids = []
+            
+            for navaid in navaids:
+                distance = self.waypoint_db.calculate_distance(lat, lon,
+                                                             navaid.latitude,
+                                                             navaid.longitude)
+                if distance <= radius_nm:
+                    nearby_navaids.append({
+                        'identifier': navaid.identifier,
+                        'latitude': navaid.latitude,
+                        'longitude': navaid.longitude,
+                        'distance_nm': distance,
+                        'frequency': navaid.frequency,
+                        'waypoint_type': navaid.waypoint_type
+                    })
+            
+            nearby_navaids.sort(key=lambda x: x['distance_nm'])
+            logger.info(f"Found {len(nearby_navaids)} {aid_type} aids within {radius_nm}nm")
+            return nearby_navaids
+            
+        except Exception as e:
+            logger.error(f"Failed to find navigation aids: {e}")
+            return []
+    
+    def validate_route_waypoints(self, route: List[str]) -> Tuple[bool, List[str]]:
+        """Validate that all waypoints in route exist and return any missing ones"""
+        try:
+            missing_waypoints = []
+            
+            for wp_id in route:
+                waypoint = self.waypoint_db.find_waypoint(wp_id)
+                if not waypoint:
+                    missing_waypoints.append(wp_id)
+            
+            is_valid = len(missing_waypoints) == 0
+            logger.info(f"Route validation: {len(route)} waypoints, {len(missing_waypoints)} missing")
+            return is_valid, missing_waypoints
+            
+        except Exception as e:
+            logger.error(f"Failed to validate route waypoints: {e}")
+            return False, route
+    
+    def get_waypoint_details(self, wp_id: str) -> Optional[Dict[str, Any]]:
+        """Get detailed waypoint information including enhanced data"""
+        try:
+            waypoint = self.waypoint_db.find_waypoint(wp_id)
+            if waypoint:
+                return {
+                    'identifier': waypoint.identifier,
+                    'latitude': waypoint.latitude,
+                    'longitude': waypoint.longitude,
+                    'altitude': waypoint.altitude,
+                    'waypoint_type': waypoint.waypoint_type,
+                    'frequency': waypoint.frequency,
+                    'magnetic_variation': waypoint.magnetic_variation,
+                    'elevation': waypoint.elevation,
+                    'region': waypoint.region,
+                    'country': waypoint.country
+                }
+            return None
+            
+        except Exception as e:
+            logger.error(f"Failed to get waypoint details for {wp_id}: {e}")
+            return None
 
 # Factory function for easier integration
 def create_flight_plan_manager(nav_db_path: str = "data/nav_database/navigation.db") -> FlightPlanManager:

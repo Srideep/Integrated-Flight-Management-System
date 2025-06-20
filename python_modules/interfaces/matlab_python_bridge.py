@@ -17,6 +17,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from flight_planning.flight_plan_manager import FlightPlanManager, FlightPlan
 from nav_database.nav_data_manager import NavigationDatabase
+from nav_database.waypoint_database import WaypointDatabase
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -25,13 +26,15 @@ logger = logging.getLogger(__name__)
 # Global instances for MATLAB integration
 _flight_plan_manager: Optional[FlightPlanManager] = None
 _nav_database: Optional[NavigationDatabase] = None
+_waypoint_database: Optional[WaypointDatabase] = None
 
 def initialize_fms_bridge(nav_db_path: str = "data/nav_database/navigation.db") -> bool:
     """Initialize the FMS bridge with navigation database and flight plan manager"""
-    global _flight_plan_manager, _nav_database
+    global _flight_plan_manager, _nav_database, _waypoint_database
     
     try:
         _nav_database = NavigationDatabase(nav_db_path)
+        _waypoint_database = WaypointDatabase(nav_db_path)
         _flight_plan_manager = FlightPlanManager(nav_db_path)
         logger.info("FMS bridge initialized successfully")
         return True
@@ -60,21 +63,77 @@ def find_waypoint_bridge(waypoint_id: str) -> Optional[Dict[str, Any]]:
     return None
 
 def search_waypoints_near_bridge(lat: float, lon: float, radius_nm: float = 50.0) -> List[Dict[str, Any]]:
-    """Search for waypoints near a position"""
-    if not _nav_database:
+    """Search for waypoints near a position using enhanced waypoint database"""
+    if not _waypoint_database:
         return []
     
-    waypoints = _nav_database.search_waypoints_near(lat, lon, radius_nm)
+    waypoints = _waypoint_database.find_waypoints_in_radius(lat, lon, radius_nm)
     return [
         {
             'identifier': wp.identifier,
             'latitude': wp.latitude,
             'longitude': wp.longitude,
             'waypoint_type': wp.waypoint_type,
-            'distance_nm': wp.distance_nm if hasattr(wp, 'distance_nm') else 0.0
+            'frequency': wp.frequency,
+            'region': wp.region,
+            'country': wp.country,
+            'distance_nm': _waypoint_database.calculate_distance(lat, lon, wp.latitude, wp.longitude)
         }
         for wp in waypoints
     ]
+
+def find_waypoints_by_type_bridge(waypoint_type: str) -> List[Dict[str, Any]]:
+    """Find all waypoints of a specific type"""
+    if not _waypoint_database:
+        return []
+    
+    waypoints = _waypoint_database.find_waypoints_by_type(waypoint_type)
+    return [
+        {
+            'identifier': wp.identifier,
+            'latitude': wp.latitude,
+            'longitude': wp.longitude,
+            'waypoint_type': wp.waypoint_type,
+            'frequency': wp.frequency,
+            'region': wp.region,
+            'country': wp.country
+        }
+        for wp in waypoints
+    ]
+
+def find_airports_in_region_bridge(region: str, country: str = None) -> List[Dict[str, Any]]:
+    """Find airports in a specific region/country"""
+    if not _waypoint_database:
+        return []
+    
+    airports = _waypoint_database.find_waypoints_by_region(region, country)
+    airport_list = [wp for wp in airports if wp.waypoint_type == "AIRPORT"]
+    
+    return [
+        {
+            'identifier': wp.identifier,
+            'latitude': wp.latitude,
+            'longitude': wp.longitude,
+            'elevation': wp.elevation,
+            'region': wp.region,
+            'country': wp.country
+        }
+        for wp in airport_list
+    ]
+
+def calculate_distance_bridge(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """Calculate distance between two points"""
+    if not _waypoint_database:
+        return 0.0
+    
+    return _waypoint_database.calculate_distance(lat1, lon1, lat2, lon2)
+
+def calculate_bearing_bridge(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """Calculate initial bearing between two points"""
+    if not _waypoint_database:
+        return 0.0
+    
+    return _waypoint_database.calculate_bearing(lat1, lon1, lat2, lon2)
 
 # ============================================================================
 # FLIGHT PLAN CREATION INTERFACE
@@ -270,15 +329,67 @@ def get_flight_plan_info_bridge(plan_name: str) -> Optional[Dict[str, Any]]:
         ]
     }
 
+def find_alternate_airports_bridge(lat: float, lon: float, radius_nm: float = 50) -> List[Dict[str, Any]]:
+    """Find alternate airports near a position"""
+    if not _flight_plan_manager:
+        return []
+    
+    return _flight_plan_manager.find_alternate_airports((lat, lon), radius_nm)
+
+def find_navigation_aids_bridge(lat: float, lon: float, radius_nm: float = 100, 
+                               aid_type: str = "VOR") -> List[Dict[str, Any]]:
+    """Find navigation aids near a position"""
+    if not _flight_plan_manager:
+        return []
+    
+    return _flight_plan_manager.find_navigation_aids((lat, lon), radius_nm, aid_type)
+
+def validate_route_bridge(route_list: List[str]) -> Dict[str, Any]:
+    """Validate a route and return validation results"""
+    if not _flight_plan_manager:
+        return {"valid": False, "missing_waypoints": route_list}
+    
+    is_valid, missing = _flight_plan_manager.validate_route_waypoints(route_list)
+    return {
+        "valid": is_valid,
+        "missing_waypoints": missing,
+        "total_waypoints": len(route_list),
+        "valid_waypoints": len(route_list) - len(missing)
+    }
+
+def get_waypoint_details_bridge(wp_id: str) -> Optional[Dict[str, Any]]:
+    """Get detailed waypoint information"""
+    if not _flight_plan_manager:
+        return None
+    
+    return _flight_plan_manager.get_waypoint_details(wp_id)
+
 def test_bridge_connection() -> Dict[str, Any]:
     """Test the bridge connection and return system status"""
+    # Test waypoint database functions
+    waypoint_stats = {}
+    if _waypoint_database:
+        try:
+            stats = _waypoint_database.get_waypoint_statistics()
+            waypoint_stats = stats
+        except:
+            waypoint_stats = {"error": "Could not retrieve statistics"}
+    
     return {
-        'bridge_initialized': _flight_plan_manager is not None and _nav_database is not None,
+        'bridge_initialized': all([_flight_plan_manager, _nav_database, _waypoint_database]),
         'nav_db_available': _nav_database is not None,
+        'waypoint_db_available': _waypoint_database is not None,
         'flight_plan_manager_available': _flight_plan_manager is not None,
         'active_plan': _flight_plan_manager.active_plan.name if _flight_plan_manager and _flight_plan_manager.active_plan else None,
         'available_plans': get_all_flight_plans_bridge(),
-        'timestamp': str(logger.handlers[0].formatter.formatTime(logging.LogRecord('test', 0, '', 0, '', (), None))) if logger.handlers else 'unknown'
+        'waypoint_statistics': waypoint_stats,
+        'available_functions': [
+            'find_waypoint_bridge', 'search_waypoints_near_bridge', 
+            'find_waypoints_by_type_bridge', 'find_airports_in_region_bridge',
+            'calculate_distance_bridge', 'calculate_bearing_bridge',
+            'find_alternate_airports_bridge', 'find_navigation_aids_bridge',
+            'validate_route_bridge', 'get_waypoint_details_bridge'
+        ]
     }
 
 # ============================================================================
@@ -287,9 +398,14 @@ def test_bridge_connection() -> Dict[str, Any]:
 
 def cleanup_bridge():
     """Cleanup bridge resources"""
-    global _flight_plan_manager, _nav_database
+    global _flight_plan_manager, _nav_database, _waypoint_database
+    
+    if _waypoint_database:
+        _waypoint_database.close()
+    
     _flight_plan_manager = None
     _nav_database = None
+    _waypoint_database = None
     logger.info("FMS bridge cleaned up")
 
 # Auto-initialize when module is imported

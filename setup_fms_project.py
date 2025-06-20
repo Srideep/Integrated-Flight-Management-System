@@ -37,6 +37,25 @@ def setup_fms_project():
     try:
         fp_manager = FlightPlanManager('data/nav_database/navigation.db')
         
+        # Test enhanced waypoint database integration
+        print("   Testing enhanced waypoint database features...")
+        
+        # Find alternate airports near KSFO
+        alternates = fp_manager.find_alternate_airports((37.6213, -122.3790), 50)
+        print(f"   ✓ Found {len(alternates)} alternate airports within 50nm of KSFO")
+        
+        # Find navigation aids
+        navaids = fp_manager.find_navigation_aids((37.6213, -122.3790), 100, "VOR")
+        print(f"   ✓ Found {len(navaids)} VOR navigation aids within 100nm")
+        
+        # Validate route
+        test_route = ["KSFO", "SFO", "KOAK"]
+        is_valid, missing = fp_manager.validate_route_waypoints(test_route)
+        if is_valid:
+            print("   ✓ Route validation: All waypoints found in database")
+        else:
+            print(f"   ⚠ Route validation: Missing waypoints {missing}")
+        
         # Sample flight plan: KSFO to KOAK via SFO VOR
         plan1 = fp_manager.create_flight_plan(
             name="KSFO_KOAK_001",
