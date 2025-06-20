@@ -44,6 +44,39 @@ Sensor Models → Flight Data Display
 
 ## 🏗️ Complete Project Structure
 
+
+## 🧩 Modular Simulink-Only Project Structure (Academic Edition)
+
+For simpler academic/prototype use without full Python/SQLite integration:
+
+```
+Simplified_FMS_Project/
+├── AppDesigner/                   # UI + callbacks
+├── MATLAB/                        # Nav math, file I/O, helpers
+├── Simulink/                      # Dynamics, guidance, sensors
+├── Stateflow/                     # Mode logic
+├── Integration/                   # Sim coordination
+├── Documentation/                # Specs, diagrams
+├── Tests/                         # Unit tests
+└── README.md
+```
+
+This version uses only MathWorks tools (MATLAB, Simulink, Stateflow, App Designer) and is based on educational modules like:
+- Module 1: Simplified Nav Database
+- Module 2: Flight Plan Entry & Storage
+- Module 3: FMS Mode Logic
+- Module 4: Flight-Data Display
+- Module 5: Environment Model (COESA)
+- Module 6: Sensor Models (GPS, ADC)
+- Module 7: Aircraft Dynamics
+- Module 8: Navigation and Guidance
+- Module 9: Stateflow–Simulink Bridge
+- Module 10: App Designer–Stateflow Comms
+- Module 11: App–Simulink Visualization Sync
+
+
+
+
 ```
 FMS_Integrated_System/
 ├── models/                           # Simulink models
@@ -454,4 +487,3 @@ This project is proprietary software developed for flight management system appl
 
 ---
 
-**System Capabilities**: This integrated FMS provides professional-grade flight management capabilities including navigation database management, flight planning, real-time navigation calculations, mode logic control, and comprehensive flight data display. The system demonstrates industry-standard architecture patterns and development practices suitable for both training and research applications.

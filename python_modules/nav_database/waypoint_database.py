@@ -70,7 +70,7 @@ class Waypoint:
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'Waypoint':
         """Create waypoint from dictionary"""
-        if 'created_date' in data and data['created_date']:
+        if 'created_date' in data and isinstance(data['created_date'], str):
             data['created_date'] = datetime.fromisoformat(data['created_date'])
         return cls(**data)
 
@@ -168,29 +168,17 @@ class WaypointDatabase:
             result = cursor.fetchone()
             if result:
                 data = {
-                    'identifier':
-                    result[0],
-                    'latitude':
-                    result[1],
-                    'longitude':
-                    result[2],
-                    'altitude':
-                    result[3],
-                    'waypoint_type':
-                    result[4],
-                    'frequency':
-                    result[5],
-                    'magnetic_variation':
-                    result[6],
-                    'elevation':
-                    result[7],
-                    'region':
-                    result[8],
-                    'country':
-                    result[9],
-                    'created_date':
-                    datetime.fromisoformat(result[10])
-                    if result[10] and isinstance(result[10], str) else None
+                    'identifier': result[0],
+                    'latitude': result[1],
+                    'longitude': result[2],
+                    'altitude': result[3],
+                    'waypoint_type': result[4],
+                    'frequency': result[5],
+                    'magnetic_variation': result[6],
+                    'elevation': result[7],
+                    'region': result[8],
+                    'country': result[9],
+                    'created_date': result[10],
                 }
                 return Waypoint.from_dict(data)
 
@@ -215,29 +203,17 @@ class WaypointDatabase:
             waypoints = []
             for row in cursor.fetchall():
                 data = {
-                    'identifier':
-                    row[0],
-                    'latitude':
-                    row[1],
-                    'longitude':
-                    row[2],
-                    'altitude':
-                    row[3],
-                    'waypoint_type':
-                    row[4],
-                    'frequency':
-                    row[5],
-                    'magnetic_variation':
-                    row[6],
-                    'elevation':
-                    row[7],
-                    'region':
-                    row[8],
-                    'country':
-                    row[9],
-                    'created_date':
-                    datetime.fromisoformat(row[10])
-                    if row[10] and isinstance(row[10], str) else None
+                    'identifier': row[0],
+                    'latitude': row[1],
+                    'longitude': row[2],
+                    'altitude': row[3],
+                    'waypoint_type': row[4],
+                    'frequency': row[5],
+                    'magnetic_variation': row[6],
+                    'elevation': row[7],
+                    'region': row[8],
+                    'country': row[9],
+                    'created_date': row[10],
                 }
                 waypoints.append(Waypoint.from_dict(data))
 
@@ -265,29 +241,17 @@ class WaypointDatabase:
             waypoints_with_distance = []
             for row in cursor.fetchall():
                 data = {
-                    'identifier':
-                    row[0],
-                    'latitude':
-                    row[1],
-                    'longitude':
-                    row[2],
-                    'altitude':
-                    row[3],
-                    'waypoint_type':
-                    row[4],
-                    'frequency':
-                    row[5],
-                    'magnetic_variation':
-                    row[6],
-                    'elevation':
-                    row[7],
-                    'region':
-                    row[8],
-                    'country':
-                    row[9],
-                    'created_date':
-                    datetime.fromisoformat(row[10])
-                    if row[10] and isinstance(row[10], str) else None
+                    'identifier': row[0],
+                    'latitude': row[1],
+                    'longitude': row[2],
+                    'altitude': row[3],
+                    'waypoint_type': row[4],
+                    'frequency': row[5],
+                    'magnetic_variation': row[6],
+                    'elevation': row[7],
+                    'region': row[8],
+                    'country': row[9],
+                    'created_date': row[10],
                 }
                 waypoint = Waypoint.from_dict(data)
 
@@ -340,29 +304,17 @@ class WaypointDatabase:
             waypoints = []
             for row in cursor.fetchall():
                 data = {
-                    'identifier':
-                    row[0],
-                    'latitude':
-                    row[1],
-                    'longitude':
-                    row[2],
-                    'altitude':
-                    row[3],
-                    'waypoint_type':
-                    row[4],
-                    'frequency':
-                    row[5],
-                    'magnetic_variation':
-                    row[6],
-                    'elevation':
-                    row[7],
-                    'region':
-                    row[8],
-                    'country':
-                    row[9],
-                    'created_date':
-                    datetime.fromisoformat(row[10])
-                    if row[10] and isinstance(row[10], str) else None
+                    'identifier': row[0],
+                    'latitude': row[1],
+                    'longitude': row[2],
+                    'altitude': row[3],
+                    'waypoint_type': row[4],
+                    'frequency': row[5],
+                    'magnetic_variation': row[6],
+                    'elevation': row[7],
+                    'region': row[8],
+                    'country': row[9],
+                    'created_date': row[10],
                 }
                 waypoints.append(Waypoint.from_dict(data))
 
@@ -392,29 +344,17 @@ class WaypointDatabase:
             waypoints = []
             for row in cursor.fetchall():
                 data = {
-                    'identifier':
-                    row[0],
-                    'latitude':
-                    row[1],
-                    'longitude':
-                    row[2],
-                    'altitude':
-                    row[3],
-                    'waypoint_type':
-                    row[4],
-                    'frequency':
-                    row[5],
-                    'magnetic_variation':
-                    row[6],
-                    'elevation':
-                    row[7],
-                    'region':
-                    row[8],
-                    'country':
-                    row[9],
-                    'created_date':
-                    datetime.fromisoformat(row[10])
-                    if row[10] and isinstance(row[10], str) else None
+                    'identifier': row[0],
+                    'latitude': row[1],
+                    'longitude': row[2],
+                    'altitude': row[3],
+                    'waypoint_type': row[4],
+                    'frequency': row[5],
+                    'magnetic_variation': row[6],
+                    'elevation': row[7],
+                    'region': row[8],
+                    'country': row[9],
+                    'created_date': row[10],
                 }
                 waypoints.append(Waypoint.from_dict(data))
 
