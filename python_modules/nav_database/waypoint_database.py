@@ -12,8 +12,11 @@ from typing import List, Optional, Dict, Any, Tuple
 from datetime import datetime
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+
 
 @dataclass
 class Waypoint:
@@ -37,7 +40,8 @@ class Waypoint:
 
         # Validate coordinates
         if not self.is_valid_coordinates():
-            raise ValueError(f"Invalid coordinates for waypoint {self.identifier}")
+            raise ValueError(
+                f"Invalid coordinates for waypoint {self.identifier}")
 
         # Normalize identifier to uppercase
         self.identifier = self.identifier.upper()
@@ -48,13 +52,13 @@ class Waypoint:
 
     def distance_to(self, other: 'Waypoint') -> float:
         """Calculate great circle distance to another waypoint in nautical miles"""
-        return calculate_distance(self.latitude, self.longitude, 
-                                other.latitude, other.longitude)
+        return calculate_distance(self.latitude, self.longitude,
+                                  other.latitude, other.longitude)
 
     def bearing_to(self, other: 'Waypoint') -> float:
         """Calculate initial bearing to another waypoint in degrees"""
-        return calculate_bearing(self.latitude, self.longitude,
-                               other.latitude, other.longitude)
+        return calculate_bearing(self.latitude, self.longitude, other.latitude,
+                                 other.longitude)
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert waypoint to dictionary"""
@@ -69,6 +73,7 @@ class Waypoint:
         if 'created_date' in data and data['created_date']:
             data['created_date'] = datetime.fromisoformat(data['created_date'])
         return cls(**data)
+
 
 class WaypointDatabase:
     """Specialized waypoint database manager with advanced search and validation"""
@@ -128,17 +133,18 @@ class WaypointDatabase:
         """Add or update a waypoint in the database"""
         try:
             cursor = self.connection.cursor()
-            cursor.execute('''
+            cursor.execute(
+                '''
                 INSERT OR REPLACE INTO waypoints 
                 (identifier, latitude, longitude, altitude, waypoint_type, 
                  frequency, magnetic_variation, elevation, region, country, created_date)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (
-                waypoint.identifier, waypoint.latitude, waypoint.longitude,
-                waypoint.altitude, waypoint.waypoint_type, waypoint.frequency,
-                waypoint.magnetic_variation, waypoint.elevation, waypoint.region,
-                waypoint.country, waypoint.created_date.isoformat() if waypoint.created_date else None
-            ))
+            ''', (waypoint.identifier, waypoint.latitude, waypoint.longitude,
+                  waypoint.altitude, waypoint.waypoint_type,
+                  waypoint.frequency, waypoint.magnetic_variation,
+                  waypoint.elevation, waypoint.region, waypoint.country,
+                  waypoint.created_date.isoformat()
+                  if waypoint.created_date else None))
 
             self.connection.commit()
             logger.info(f"Added waypoint {waypoint.identifier}")
@@ -152,26 +158,39 @@ class WaypointDatabase:
         """Find waypoint by identifier"""
         try:
             cursor = self.connection.cursor()
-            cursor.execute('''
+            cursor.execute(
+                '''
                 SELECT identifier, latitude, longitude, altitude, waypoint_type,
                        frequency, magnetic_variation, elevation, region, country, created_date
                 FROM waypoints WHERE UPPER(identifier) = UPPER(?)
-            ''', (identifier,))
+            ''', (identifier, ))
 
             result = cursor.fetchone()
             if result:
                 data = {
-                    'identifier': result[0],
-                    'latitude': result[1],
-                    'longitude': result[2],
-                    'altitude': result[3],
-                    'waypoint_type': result[4],
-                    'frequency': result[5],
-                    'magnetic_variation': result[6],
-                    'elevation': result[7],
-                    'region': result[8],
-                    'country': result[9],
-                    'created_date': datetime.fromisoformat(result[10]) if result[10] and isinstance(result[10], str) else None
+                    'identifier':
+                    result[0],
+                    'latitude':
+                    result[1],
+                    'longitude':
+                    result[2],
+                    'altitude':
+                    result[3],
+                    'waypoint_type':
+                    result[4],
+                    'frequency':
+                    result[5],
+                    'magnetic_variation':
+                    result[6],
+                    'elevation':
+                    result[7],
+                    'region':
+                    result[8],
+                    'country':
+                    result[9],
+                    'created_date':
+                    datetime.fromisoformat(result[10])
+                    if result[10] and isinstance(result[10], str) else None
                 }
                 return Waypoint.from_dict(data)
 
@@ -185,39 +204,55 @@ class WaypointDatabase:
         """Find all waypoints of a specific type"""
         try:
             cursor = self.connection.cursor()
-            cursor.execute('''
+            cursor.execute(
+                '''
                 SELECT identifier, latitude, longitude, altitude, waypoint_type,
                        frequency, magnetic_variation, elevation, region, country, created_date
                 FROM waypoints WHERE UPPER(waypoint_type) = UPPER(?)
                 ORDER BY identifier
-            ''', (waypoint_type,))
+            ''', (waypoint_type, ))
 
             waypoints = []
             for row in cursor.fetchall():
                 data = {
-                    'identifier': row[0],
-                    'latitude': row[1],
-                    'longitude': row[2],
-                    'altitude': row[3],
-                    'waypoint_type': row[4],
-                    'frequency': row[5],
-                    'magnetic_variation': row[6],
-                    'elevation': row[7],
-                    'region': row[8],
-                    'country': row[9],
-                    'created_date': datetime.fromisoformat(row[10]) if row[10] and isinstance(row[10], str) else None
+                    'identifier':
+                    row[0],
+                    'latitude':
+                    row[1],
+                    'longitude':
+                    row[2],
+                    'altitude':
+                    row[3],
+                    'waypoint_type':
+                    row[4],
+                    'frequency':
+                    row[5],
+                    'magnetic_variation':
+                    row[6],
+                    'elevation':
+                    row[7],
+                    'region':
+                    row[8],
+                    'country':
+                    row[9],
+                    'created_date':
+                    datetime.fromisoformat(row[10])
+                    if row[10] and isinstance(row[10], str) else None
                 }
                 waypoints.append(Waypoint.from_dict(data))
 
-            logger.info(f"Found {len(waypoints)} waypoints of type {waypoint_type}")
+            logger.info(
+                f"Found {len(waypoints)} waypoints of type {waypoint_type}")
             return waypoints
 
         except Exception as e:
-            logger.error(f"Failed to find waypoints by type {waypoint_type}: {e}")
+            logger.error(
+                f"Failed to find waypoints by type {waypoint_type}: {e}")
             return []
 
-    def find_waypoints_in_radius(self, center_lat: float, center_lon: float, 
-                                radius_nm: float) -> List[Tuple[Waypoint, float]]:
+    def find_waypoints_in_radius(
+            self, center_lat: float, center_lon: float,
+            radius_nm: float) -> List[Tuple[Waypoint, float]]:
         """Find waypoints within specified radius (nautical miles) of a point"""
         try:
             cursor = self.connection.cursor()
@@ -230,23 +265,36 @@ class WaypointDatabase:
             waypoints_with_distance = []
             for row in cursor.fetchall():
                 data = {
-                    'identifier': row[0],
-                    'latitude': row[1],
-                    'longitude': row[2],
-                    'altitude': row[3],
-                    'waypoint_type': row[4],
-                    'frequency': row[5],
-                    'magnetic_variation': row[6],
-                    'elevation': row[7],
-                    'region': row[8],
-                    'country': row[9],
-                    'created_date': datetime.fromisoformat(row[10]) if row[10] and isinstance(row[10], str) else None
+                    'identifier':
+                    row[0],
+                    'latitude':
+                    row[1],
+                    'longitude':
+                    row[2],
+                    'altitude':
+                    row[3],
+                    'waypoint_type':
+                    row[4],
+                    'frequency':
+                    row[5],
+                    'magnetic_variation':
+                    row[6],
+                    'elevation':
+                    row[7],
+                    'region':
+                    row[8],
+                    'country':
+                    row[9],
+                    'created_date':
+                    datetime.fromisoformat(row[10])
+                    if row[10] and isinstance(row[10], str) else None
                 }
                 waypoint = Waypoint.from_dict(data)
 
                 # Calculate distance
-                distance = calculate_distance(center_lat, center_lon, 
-                                            waypoint.latitude, waypoint.longitude)
+                distance = calculate_distance(center_lat, center_lon,
+                                              waypoint.latitude,
+                                              waypoint.longitude)
 
                 if distance <= radius_nm:
                     waypoints_with_distance.append((waypoint, distance))
@@ -254,20 +302,25 @@ class WaypointDatabase:
             # Sort by distance
             waypoints_with_distance.sort(key=lambda x: x[1])
 
-            logger.info(f"Found {len(waypoints_with_distance)} waypoints within {radius_nm}nm")
+            logger.info(
+                f"Found {len(waypoints_with_distance)} waypoints within {radius_nm}nm"
+            )
             return waypoints_with_distance
 
         except Exception as e:
             logger.error(f"Failed to find waypoints in radius: {e}")
             return []
 
-    def find_waypoints_by_region(self, region: str, country: str = None) -> List[Waypoint]:
+    def find_waypoints_by_region(self,
+                                 region: str,
+                                 country: str = None) -> List[Waypoint]:
         """Find waypoints by region and optionally country"""
         try:
             cursor = self.connection.cursor()
 
             if country:
-                cursor.execute('''
+                cursor.execute(
+                    '''
                     SELECT identifier, latitude, longitude, altitude, waypoint_type,
                            frequency, magnetic_variation, elevation, region, country, created_date
                     FROM waypoints 
@@ -275,28 +328,41 @@ class WaypointDatabase:
                     ORDER BY identifier
                 ''', (region, country))
             else:
-                cursor.execute('''
+                cursor.execute(
+                    '''
                     SELECT identifier, latitude, longitude, altitude, waypoint_type,
                            frequency, magnetic_variation, elevation, region, country, created_date
                     FROM waypoints 
                     WHERE UPPER(region) = UPPER(?)
                     ORDER BY identifier
-                ''', (region,))
+                ''', (region, ))
 
             waypoints = []
             for row in cursor.fetchall():
                 data = {
-                    'identifier': row[0],
-                    'latitude': row[1],
-                    'longitude': row[2],
-                    'altitude': row[3],
-                    'waypoint_type': row[4],
-                    'frequency': row[5],
-                    'magnetic_variation': row[6],
-                    'elevation': row[7],
-                    'region': row[8],
-                    'country': row[9],
-                    'created_date': datetime.fromisoformat(row[10]) if row[10] and isinstance(row[10], str) else None
+                    'identifier':
+                    row[0],
+                    'latitude':
+                    row[1],
+                    'longitude':
+                    row[2],
+                    'altitude':
+                    row[3],
+                    'waypoint_type':
+                    row[4],
+                    'frequency':
+                    row[5],
+                    'magnetic_variation':
+                    row[6],
+                    'elevation':
+                    row[7],
+                    'region':
+                    row[8],
+                    'country':
+                    row[9],
+                    'created_date':
+                    datetime.fromisoformat(row[10])
+                    if row[10] and isinstance(row[10], str) else None
                 }
                 waypoints.append(Waypoint.from_dict(data))
 
@@ -307,11 +373,14 @@ class WaypointDatabase:
             logger.error(f"Failed to find waypoints by region {region}: {e}")
             return []
 
-    def search_waypoints(self, search_term: str, limit: int = 50) -> List[Waypoint]:
+    def search_waypoints(self,
+                         search_term: str,
+                         limit: int = 50) -> List[Waypoint]:
         """Search waypoints by partial identifier match"""
         try:
             cursor = self.connection.cursor()
-            cursor.execute('''
+            cursor.execute(
+                '''
                 SELECT identifier, latitude, longitude, altitude, waypoint_type,
                        frequency, magnetic_variation, elevation, region, country, created_date
                 FROM waypoints 
@@ -323,21 +392,34 @@ class WaypointDatabase:
             waypoints = []
             for row in cursor.fetchall():
                 data = {
-                    'identifier': row[0],
-                    'latitude': row[1],
-                    'longitude': row[2],
-                    'altitude': row[3],
-                    'waypoint_type': row[4],
-                    'frequency': row[5],
-                    'magnetic_variation': row[6],
-                    'elevation': row[7],
-                    'region': row[8],
-                    'country': row[9],
-                    'created_date': datetime.fromisoformat(row[10]) if row[10] and isinstance(row[10], str) else None
+                    'identifier':
+                    row[0],
+                    'latitude':
+                    row[1],
+                    'longitude':
+                    row[2],
+                    'altitude':
+                    row[3],
+                    'waypoint_type':
+                    row[4],
+                    'frequency':
+                    row[5],
+                    'magnetic_variation':
+                    row[6],
+                    'elevation':
+                    row[7],
+                    'region':
+                    row[8],
+                    'country':
+                    row[9],
+                    'created_date':
+                    datetime.fromisoformat(row[10])
+                    if row[10] and isinstance(row[10], str) else None
                 }
                 waypoints.append(Waypoint.from_dict(data))
 
-            logger.info(f"Found {len(waypoints)} waypoints matching '{search_term}'")
+            logger.info(
+                f"Found {len(waypoints)} waypoints matching '{search_term}'")
             return waypoints
 
         except Exception as e:
@@ -348,7 +430,9 @@ class WaypointDatabase:
         """Delete waypoint by identifier"""
         try:
             cursor = self.connection.cursor()
-            cursor.execute('DELETE FROM waypoints WHERE UPPER(identifier) = UPPER(?)', (identifier,))
+            cursor.execute(
+                'DELETE FROM waypoints WHERE UPPER(identifier) = UPPER(?)',
+                (identifier, ))
 
             if cursor.rowcount > 0:
                 self.connection.commit()
@@ -418,24 +502,34 @@ class WaypointDatabase:
             errors.append("Invalid latitude or longitude coordinates")
 
         # Identifier format validation
-        if waypoint.identifier and not waypoint.identifier.replace('_', '').replace('-', '').isalnum():
+        if waypoint.identifier and not waypoint.identifier.replace(
+                '_', '').replace('-', '').isalnum():
             errors.append("Identifier contains invalid characters")
 
         # Type validation
-        valid_types = ['AIRPORT', 'VOR', 'NDB', 'WAYPOINT', 'INTERSECTION', 'DME', 'TACAN']
+        valid_types = [
+            'AIRPORT', 'VOR', 'NDB', 'WAYPOINT', 'INTERSECTION', 'DME', 'TACAN'
+        ]
         if waypoint.waypoint_type not in valid_types:
-            errors.append(f"Invalid waypoint type. Must be one of: {', '.join(valid_types)}")
+            errors.append(
+                f"Invalid waypoint type. Must be one of: {', '.join(valid_types)}"
+            )
 
         # Frequency validation for radio aids
-        if waypoint.waypoint_type in ['VOR', 'NDB', 'DME', 'TACAN'] and waypoint.frequency:
-            if waypoint.waypoint_type == 'VOR' and not (108.0 <= waypoint.frequency <= 118.0):
-                errors.append("VOR frequency must be between 108.0 and 118.0 MHz")
-            elif waypoint.waypoint_type == 'NDB' and not (190 <= waypoint.frequency <= 1750):
+        if waypoint.waypoint_type in ['VOR', 'NDB', 'DME', 'TACAN'
+                                      ] and waypoint.frequency:
+            if waypoint.waypoint_type == 'VOR' and not (
+                    108.0 <= waypoint.frequency <= 118.0):
+                errors.append(
+                    "VOR frequency must be between 108.0 and 118.0 MHz")
+            elif waypoint.waypoint_type == 'NDB' and not (
+                    190 <= waypoint.frequency <= 1750):
                 errors.append("NDB frequency must be between 190 and 1750 kHz")
 
         return errors
 
-    def bulk_import_waypoints(self, waypoints: List[Waypoint]) -> Tuple[int, int, List[str]]:
+    def bulk_import_waypoints(
+            self, waypoints: List[Waypoint]) -> Tuple[int, int, List[str]]:
         """Import multiple waypoints, return (success_count, error_count, errors)"""
         success_count = 0
         error_count = 0
@@ -445,15 +539,21 @@ class WaypointDatabase:
             validation_errors = self.validate_waypoint_data(waypoint)
             if validation_errors:
                 error_count += 1
-                errors.extend([f"{waypoint.identifier}: {error}" for error in validation_errors])
+                errors.extend([
+                    f"{waypoint.identifier}: {error}"
+                    for error in validation_errors
+                ])
             else:
                 if self.add_waypoint(waypoint):
                     success_count += 1
                 else:
                     error_count += 1
-                    errors.append(f"{waypoint.identifier}: Failed to add to database")
+                    errors.append(
+                        f"{waypoint.identifier}: Failed to add to database")
 
-        logger.info(f"Bulk import completed: {success_count} success, {error_count} errors")
+        logger.info(
+            f"Bulk import completed: {success_count} success, {error_count} errors"
+        )
         return success_count, error_count, errors
 
     def close(self):
@@ -462,11 +562,14 @@ class WaypointDatabase:
             self.connection.close()
             logger.info("Waypoint database connection closed")
 
+
 # ============================================================================
 # UTILITY FUNCTIONS
 # ============================================================================
 
-def calculate_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+
+def calculate_distance(lat1: float, lon1: float, lat2: float,
+                       lon2: float) -> float:
     """Calculate great circle distance between two points in nautical miles"""
     # Convert to radians
     lat1_rad = math.radians(lat1)
@@ -478,16 +581,18 @@ def calculate_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> fl
     dlat = lat2_rad - lat1_rad
     dlon = lon2_rad - lon1_rad
 
-    a = (math.sin(dlat/2)**2 + 
-         math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(dlon/2)**2)
-    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+    a = (math.sin(dlat / 2)**2 +
+         math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(dlon / 2)**2)
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
     # Earth radius in nautical miles
     earth_radius_nm = 3440.065
 
     return earth_radius_nm * c
 
-def calculate_bearing(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+
+def calculate_bearing(lat1: float, lon1: float, lat2: float,
+                      lon2: float) -> float:
     """Calculate initial bearing from point 1 to point 2 in degrees"""
     # Convert to radians
     lat1_rad = math.radians(lat1)
@@ -498,7 +603,7 @@ def calculate_bearing(lat1: float, lon1: float, lat2: float, lon2: float) -> flo
     dlon = lon2_rad - lon1_rad
 
     y = math.sin(dlon) * math.cos(lat2_rad)
-    x = (math.cos(lat1_rad) * math.sin(lat2_rad) - 
+    x = (math.cos(lat1_rad) * math.sin(lat2_rad) -
          math.sin(lat1_rad) * math.cos(lat2_rad) * math.cos(dlon))
 
     bearing_rad = math.atan2(y, x)
@@ -507,16 +612,19 @@ def calculate_bearing(lat1: float, lon1: float, lat2: float, lon2: float) -> flo
     # Normalize to 0-360 degrees
     return (bearing_deg + 360) % 360
 
-def create_waypoint_from_coordinates(identifier: str, latitude: float, longitude: float,
-                                   waypoint_type: str = 'WAYPOINT', **kwargs) -> Waypoint:
+
+def create_waypoint_from_coordinates(identifier: str,
+                                     latitude: float,
+                                     longitude: float,
+                                     waypoint_type: str = 'WAYPOINT',
+                                     **kwargs) -> Waypoint:
     """Factory function to create waypoint from coordinates"""
-    return Waypoint(
-        identifier=identifier,
-        latitude=latitude,
-        longitude=longitude,
-        waypoint_type=waypoint_type,
-        **kwargs
-    )
+    return Waypoint(identifier=identifier,
+                    latitude=latitude,
+                    longitude=longitude,
+                    waypoint_type=waypoint_type,
+                    **kwargs)
+
 
 # ============================================================================
 # EXAMPLE USAGE AND TESTING
@@ -531,10 +639,33 @@ if __name__ == "__main__":
 
     # Create test waypoints
     test_waypoints = [
-        Waypoint("KSFO", 37.6213, -122.3790, altitude=13, waypoint_type="AIRPORT", region="CA", country="USA"),
-        Waypoint("KOAK", 37.7214, -122.2208, altitude=9, waypoint_type="AIRPORT", region="CA", country="USA"),
-        Waypoint("SFO", 37.6189, -122.3750, waypoint_type="VOR", frequency=113.9, region="CA", country="USA"),
-        Waypoint("WESLA", 37.7000, -122.4167, waypoint_type="WAYPOINT", region="CA", country="USA"),
+        Waypoint("KSFO",
+                 37.6213,
+                 -122.3790,
+                 altitude=13,
+                 waypoint_type="AIRPORT",
+                 region="CA",
+                 country="USA"),
+        Waypoint("KOAK",
+                 37.7214,
+                 -122.2208,
+                 altitude=9,
+                 waypoint_type="AIRPORT",
+                 region="CA",
+                 country="USA"),
+        Waypoint("SFO",
+                 37.6189,
+                 -122.3750,
+                 waypoint_type="VOR",
+                 frequency=113.9,
+                 region="CA",
+                 country="USA"),
+        Waypoint("WESLA",
+                 37.7000,
+                 -122.4167,
+                 waypoint_type="WAYPOINT",
+                 region="CA",
+                 country="USA"),
     ]
 
     # Bulk import
