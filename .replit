@@ -13,4 +13,4 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python3 wapoint_database.py"
+args = "python3 setup_fms_project.py"
