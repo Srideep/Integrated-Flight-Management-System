@@ -51,7 +51,7 @@ function define_navigation_buses()
     % This bus defines the structure for a single waypoint. It will be
     % nested inside the FlightPlanBus.
 
-    % FIX: Create the bus object BEFORE defining its elements.
+    
     WaypointBus = Simulink.Bus;
 
     WaypointElements(1) = Simulink.BusElement;
@@ -137,8 +137,16 @@ function define_navigation_buses()
     % --- 3. Persistence Phase ---
     % Save the bus definitions to a MAT file. This allows them to be
     % loaded quickly in future sessions without re-running this script.
-    save('data/navigation_buses.mat', 'PositionBus', 'WaypointBus', ...
-         'NavigationBus', 'FlightPlanBus');
+    
+    outputFolder = fullfile('/MATLAB Drive/Projects/FMS_Integrated_System/data');
 
-    fprintf('Bus definitions saved to data/navigation_buses.mat\n');
+    % Create the output folder if it doesn't exist
+    if ~exist(outputFolder, 'dir')
+       mkdir(outputFolder)
+    end
+    
+    filePath = fullfile(outputFolder, 'navigation_buses.mat');
+    save(filePath);
+        
+    fprintf('Bus definitions saved to %s\n', filePath);
 end
