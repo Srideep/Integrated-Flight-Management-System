@@ -1,4 +1,4 @@
-%% create_navigation_module.m
+%% create_navigation_module
 % Complete script to create the Navigation Calculations module for IFMS
 
 function create_navigation_module()
