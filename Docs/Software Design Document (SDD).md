@@ -64,10 +64,10 @@ The system is organized into four distinct layers:
 
 * **models/**: Contains all Simulink models.  
   * **FMS\_Master\_Model.slx**: The top-level model that integrates all other Simulink components.  
-  * **dynamics/**: Contains the Aircraft\_Dynamics.slx model, which simulates the aircraft's 6-DOF movement.  
-  * **navigation/**: Navigation\_Calculations.slx performs real-time calculations (XTE, etc.) by calling into the Python bridge.  
-  * **guidance/**: Guidance\_Law.slx computes the necessary commands to steer the aircraft based on navigation outputs.  
-  * **display/**: Flight\_Data\_Display.slx visualizes the system's state.  
+  * **dynamics**: Contains the Aircraft\_Dynamics.slx model, which simulates the aircraft's 6-DOF movement.  
+  * **navigation**: Navigation\_Calculations.slx performs real-time calculations (XTE, etc.) by calling into the Python bridge.  
+  * **guidance**: Guidance\_Law.slx computes the necessary commands to steer the aircraft based on navigation outputs.  
+  * **display**: Flight\_Data\_Display.slx visualizes the system's state.  
 * **stateflow/**:  
   * **FMS\_Mode\_Logic.sfx**: A Stateflow chart that implements the hierarchical state machine for managing FMS modes as defined in the SRS (FR-4.1, FR-4.2).  
 * **apps/**:  
