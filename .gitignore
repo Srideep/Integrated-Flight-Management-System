@@ -37,3 +37,7 @@ codegen/
 
 #Other
 .replit
+# Python artifacts
+__pycache__/
+*.py[cod]
+*.db
