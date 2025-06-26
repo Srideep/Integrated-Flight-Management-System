@@ -13,7 +13,19 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from python_modules.flight_planning.flight_plan_manager import FlightPlanManager
 from python_modules.nav_database.waypoint_database import WaypointDatabase, Waypoint
-from python_modules.interfaces.matlab_python_bridge import *
+from python_modules.interfaces.matlab_python_bridge import (
+    initialize_fms_bridge,
+    search_waypoints_near_bridge,
+    find_waypoints_by_type_bridge,
+    find_airports_in_region_bridge,
+    calculate_distance_bridge,
+    calculate_bearing_bridge,
+    validate_route_bridge,
+    find_alternate_airports_bridge,
+    find_navigation_aids_bridge,
+    test_bridge_connection,
+    cleanup_bridge,
+)
 
 def test_waypoint_database_integration():
     """Test the complete waypoint database integration"""
