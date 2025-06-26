@@ -44,7 +44,7 @@ def test_navigation_database():
     print("All navigation database tests passed!")
     
     # Clean up test database
-    db.connection.close()
+    db.close()
     os.remove('test_nav.db')
     
     return True

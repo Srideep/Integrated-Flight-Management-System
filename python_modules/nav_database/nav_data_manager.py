@@ -101,6 +101,12 @@ class NavigationDatabase:
         # Create waypoints with basic fields only
         return [Waypoint(row[0], row[1], row[2], row[3], row[4]) for row in cursor.fetchall()]
 
+    def close(self):
+        """Close database connection"""
+        if self.connection:
+            self.connection.close()
+            self.connection = None
+
 if __name__ == "__main__":
     # Basic test when run directly
     db = NavigationDatabase()
@@ -112,3 +118,4 @@ if __name__ == "__main__":
         print(f"Found KSFO: {ksfo.latitude}, {ksfo.longitude}")
     else:
         print("KSFO not found")
+    db.close()
