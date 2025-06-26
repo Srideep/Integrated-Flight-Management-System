@@ -609,8 +609,9 @@ if __name__ == "__main__":
     ]
 
     # Bulk import
-    success, errors, error_list = wp_db.bulk_import_waypoints(test_waypoints)
-    print(f"Imported {success} waypoints, {errors} errors")
+    success_count, error_count, errors = wp_db.bulk_import_waypoints(
+        test_waypoints)
+    print(f"Imported {success_count} waypoints, {error_count} errors")
 
     # Test searches
     print("\n--- Search Tests ---")
