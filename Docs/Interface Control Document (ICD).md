@@ -96,3 +96,6 @@ This section defines the structure of the primary Simulink buses used to pass da
   | ActiveLateralMode | Enum: FMSLatMode | N/A | (e.g., LNAV, HDG, NAV) |  
   | ActiveVerticalMode | Enum: FMSVertMode | N/A | (e.g., VNAV, ALT, VS) |  
   | ArmedLateralMode | Enum: FMSLatMode | N/A | Armed lateral mode |
+### **4. Performance Considerations**
+
+The interface is designed to support the update rates specified in the README performance table. Function calls from MATLAB to Python must complete within 20 ms to maintain the 50 Hz navigation loop. Data exchanged via the defined buses should therefore remain lightweight to avoid latency.

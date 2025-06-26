@@ -92,3 +92,7 @@ The system is organized into four distinct layers:
 7. **Simulink** receives the structs and uses them in its navigation calculation blocks.
 
 This entire sequence is designed to complete within the 20ms (50Hz) timeframe specified in the performance requirements (PR-1.1).
+
+### **5. Configuration Parameters**
+
+Runtime parameters for both MATLAB and Python components are centralized for ease of tuning. Key values taken from the README include `BASE_RATE` (50 Hz), `DISPLAY_RATE` (20 Hz), and `DATABASE_PATH` for the navigation database. These parameters allow the system to meet the real-time performance targets and may be adjusted as needed.

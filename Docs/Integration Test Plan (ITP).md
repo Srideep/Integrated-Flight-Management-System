@@ -79,3 +79,6 @@ Integration testing will be performed in a bottom-up fashion.
 * 100% of all planned integration test cases must be executed.  
 * A minimum of 95% of test cases must pass.  
 * There shall be no open "Blocker" or "Critical" priority defects.
+### **5. Test Automation**
+
+Integration tests are executed using the `run_fms_integration_tests()` script referenced in the README. This harness invokes all MATLAB and Python test components, ensuring the full workflow operates within the performance limits specified.

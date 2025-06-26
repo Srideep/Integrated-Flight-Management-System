@@ -84,3 +84,6 @@ To ensure performance meets the requirements laid out in the SRS (PR-1.4), the f
 * **idx\_waypoint\_location**: A composite index on the latitude and longitude columns of the waypoints table to accelerate geographic radius searches.  
 * **idx\_waypoint\_type**: An index on the waypoint\_type column to speed up filtering by type.  
 * **idx\_waypoint\_region**: A composite index on the region and country columns for fast regional queries.
+### **5. Backup and Maintenance**
+
+Database maintenance follows the guidance in the README configuration section. The system performs periodic backups based on `BACKUP_INTERVAL` and uses a connection pool to meet query performance targets.
