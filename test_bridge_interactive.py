@@ -4,13 +4,7 @@
 Interactive test script for MATLAB Python Bridge
 """
 
-import sys
-import os
-
-# Add project modules to path
-sys.path.append(os.path.join(os.path.dirname(__file__), 'python_modules'))
-
-from interfaces.matlab_python_bridge import *
+from python_modules.interfaces.matlab_python_bridge import *
 
 def test_bridge_initialization():
     """Test bridge initialization"""

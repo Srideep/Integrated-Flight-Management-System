@@ -5,13 +5,10 @@ from dataclasses import dataclass, asdict
 from datetime import datetime
 from typing import List, Optional, Tuple, Dict, Any
 import os
-import sys
 
-# Add the parent directory to the path so we can import nav_database
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from nav_database.nav_data_manager import NavigationDatabase, Waypoint
-from nav_database.waypoint_database import WaypointDatabase
+# Import navigation modules from the python_modules package
+from ..nav_database.nav_data_manager import NavigationDatabase, Waypoint
+from ..nav_database.waypoint_database import WaypointDatabase
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')

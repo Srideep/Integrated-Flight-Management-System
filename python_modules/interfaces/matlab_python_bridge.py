@@ -6,18 +6,15 @@ This module provides the interface between MATLAB/Simulink and the Python
 flight planning and navigation database components.
 """
 
-import sys
 import os
 import json
 import logging
 from typing import Optional, List, Dict, Any, Tuple
 
-# Add project modules to path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from flight_planning.flight_plan_manager import FlightPlanManager, FlightPlan
-from nav_database.nav_data_manager import NavigationDatabase
-from nav_database.waypoint_database import WaypointDatabase
+# Import project modules directly from the package
+from ..flight_planning.flight_plan_manager import FlightPlanManager, FlightPlan
+from ..nav_database.nav_data_manager import NavigationDatabase
+from ..nav_database.waypoint_database import WaypointDatabase
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
