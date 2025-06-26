@@ -141,7 +141,7 @@ def setup_fms_project():
     print()
     print("2. To test individual components:")
     print("   python tests/test_nav_database.py")
-    print("   python tests/test_flight_planning.py")
+    print("   python tests/unit_tests/python_modules/test_flight_planning.py")
     print()
     print("3. The navigation database is ready at: data/nav_database/navigation.db")
     print("4. Sample flight plans are saved in: data/flight_plans/")
