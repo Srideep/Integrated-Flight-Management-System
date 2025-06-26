@@ -143,7 +143,12 @@ function define_navigation_buses()
     % Save the bus definitions to a MAT file. This allows them to be
     % loaded quickly in future sessions without re-running this script.
     
-    outputFolder = fullfile('/MATLAB Drive/Projects/FMS_Integrated_System/data');
+    % Determine the project root based on the location of this script and
+    % construct the path to the data folder. This keeps the output
+    % location valid regardless of where the project is cloned.
+    scriptDir = fileparts(mfilename('fullpath'));
+    projectRoot = fileparts(fileparts(scriptDir));
+    outputFolder = fullfile(projectRoot, 'data');
 
     % Create the output folder if it doesn't exist
     if ~exist(outputFolder, 'dir')
