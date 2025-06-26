@@ -74,3 +74,16 @@ The scope of this document covers the entire FMS, including the navigation datab
 | **IR-1.3** | Data exchanged between MATLAB and Python shall be converted to compatible types (e.g., Python dict to MATLAB struct). | Test |
 | **IR-1.4** | The system shall provide MATLAB App Designer GUIs for flight plan entry, system control, and data display. | Demonstration |
 
+
+### **5. Display Requirements**
+
+| Req. ID | Requirement | Verification |
+| :---- | :---- | :---- |
+| **DR-1.1** | The system shall present flight data using aerospace-style instruments as described in the README key features. | Demonstration |
+| **DR-1.2** | The display update rate shall meet or exceed 5 Hz to satisfy performance requirements from the README. | Test |
+
+### **6. Safety and Certification**
+
+| Req. ID | Requirement | Verification |
+| :---- | :---- | :---- |
+| **SC-1.1** | Development processes shall follow DO-178C practices, including requirements traceability and configuration management. | Inspection |
