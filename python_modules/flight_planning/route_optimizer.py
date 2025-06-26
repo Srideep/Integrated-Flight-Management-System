@@ -11,7 +11,7 @@ import logging
 from typing import List, Optional, Tuple, Dict, Any
 from dataclasses import dataclass
 
-from flight_plan_manager import FlightPlan, FlightPlanWaypoint
+from .flight_plan_manager import FlightPlan, FlightPlanWaypoint
 
 logger = logging.getLogger(__name__)
 
