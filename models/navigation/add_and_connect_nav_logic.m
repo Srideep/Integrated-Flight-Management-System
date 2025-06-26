@@ -1,4 +1,4 @@
-%% add_and_connect_nav_logic.m
+%% add_and_connect_nav_logic
 % Populates the FMS Navigation model with all necessary blocks, sets their
 % parameters according to the ICD, and connects them to form the data path.
 
