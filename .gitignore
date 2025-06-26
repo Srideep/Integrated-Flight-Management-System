@@ -1,16 +1,4 @@
-# Autosave files
-*.asv
-*.m~
-*.autosave
-*.slx.r*
-*.mdl.r*
-
-# Derived content-obscured files
-*.p
-
-# Compiled MEX files
-*.mex*
-
+@@ -14,26 +14,30 @@
 # Packaged app and toolbox files
 *.mlappinstall
 *.mltbx
@@ -37,3 +25,7 @@ codegen/
 
 #Other
 .replit
+.replit
+# Python artifacts
+__pycache__/
+*.py[cod]
