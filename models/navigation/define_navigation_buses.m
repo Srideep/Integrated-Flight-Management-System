@@ -1,4 +1,4 @@
-%% define_navigation_buses.m
+%% define_navigation_buses
 % This script programmatically defines all Simulink.Bus objects required for
 % the Integrated Flight Management System. Running this script ensures that
 % all data signals in the Simulink models have a consistent and well-defined
