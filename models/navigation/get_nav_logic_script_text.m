@@ -1,10 +1,13 @@
-%% get_nav_logic_script_text.m
-% Returns the complete text for the script inside the Navigation_Logic
-% MATLAB Function block. Separating this logic makes the main creation
-% scripts cleaner and the core logic easier to find and edit.
+%% get_nav_logic_script_text.
+% Returns the text for the script inside the Navigation_Logic block.
 
-function script_text = get_nav_logic_script_text()
-    script_text = [ ...
+function script = get_nav_logic_script_text()
+%GET_NAV_LOGIC_SCRIPT_TEXT Returns the MATLAB code for the Navigation_Logic block.
+%   This function outputs a complete, newline-separated string containing the
+%   definition of the Navigation_Logic MATLAB Function block, matching the ICD:
+%     - Inputs: latitude, longitude, altitude
+%     - Outputs: nav (NavigationBus struct with fields in ICD order)
+    script = [ ...
         'function NavBus = fcn(PosBus)\n' ...
         ' %#codegen\n' ...
         ' \n' ...
@@ -50,3 +53,5 @@ function script_text = get_nav_logic_script_text()
         'end' ...
     ];
 end
+
+
