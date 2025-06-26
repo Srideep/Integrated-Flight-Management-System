@@ -148,7 +148,7 @@ This will:
 python tests/test_nav_database.py
 
 # Test flight planning system  
-python tests/test_flight_planning.py
+python tests/unit_tests/python_modules/test_flight_planning.py
 ```
 
 ### 3. MATLAB Integration (Phase 5)

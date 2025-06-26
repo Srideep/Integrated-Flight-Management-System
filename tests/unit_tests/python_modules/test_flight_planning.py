@@ -7,7 +7,13 @@ import sys
 import os
 
 # Add project modules to path
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(
+    os.path.dirname(
+        os.path.dirname(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        )
+    )
+)
 
 from python_modules.flight_planning.flight_plan_manager import FlightPlanManager
 from python_modules.nav_database.nav_data_manager import NavigationDatabase

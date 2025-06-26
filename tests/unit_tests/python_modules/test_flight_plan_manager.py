@@ -13,7 +13,13 @@ import sys
 import json
 
 # Add project modules to path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.append(
+    os.path.dirname(
+        os.path.dirname(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        )
+    )
+)
 
 from python_modules.flight_planning.flight_plan_manager import (
     FlightPlanManager, FlightPlan, FlightPlanWaypoint, create_flight_plan_manager
