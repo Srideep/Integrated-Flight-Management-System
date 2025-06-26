@@ -402,6 +402,8 @@ def cleanup_bridge():
     
     if _waypoint_database:
         _waypoint_database.close()
+    if _nav_database:
+        _nav_database.close()
     
     _flight_plan_manager = None
     _nav_database = None

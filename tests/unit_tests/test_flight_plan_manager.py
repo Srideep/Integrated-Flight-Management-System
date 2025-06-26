@@ -137,11 +137,12 @@ class TestFlightPlanManagerCoreState:
             nav_db.add_waypoint(wp)
         
         manager = FlightPlanManager(db_path)
-        
+
         yield manager
-        
+
         # Cleanup
         try:
+            nav_db.close()
             os.unlink(db_path)
         except:
             pass
@@ -210,8 +211,9 @@ class TestFlightPlanManagerNavigation:
         manager.set_active_plan(flight_plan)
         
         yield manager
-        
+
         try:
+            nav_db.close()
             os.unlink(db_path)
         except:
             pass
@@ -315,8 +317,9 @@ class TestFlightPlanManagerModification:
         manager.set_active_plan(flight_plan)
         
         yield manager
-        
+
         try:
+            nav_db.close()
             os.unlink(db_path)
         except:
             pass
@@ -403,8 +406,9 @@ class TestFlightPlanManagerFileOperations:
         plan2 = manager.create_flight_plan("PLAN2", "KOAK", "KSFO", ["SFO"])
         
         yield manager
-        
+
         try:
+            nav_db.close()
             os.unlink(db_path)
         except:
             pass
@@ -501,7 +505,8 @@ class TestFlightPlanManagerStatus:
         assert status["plan_name"] == "STATUS_TEST"
         assert status["current_leg_index"] == 0
         assert "total_waypoints" in status
-        
+
+        nav_db.close()
         os.unlink(db_path)
 
 class TestEdgeCases:
@@ -522,6 +527,7 @@ class TestEdgeCases:
         assert plan is not None
         assert len(plan.waypoints) == 2  # Just departure and arrival
         
+        nav_db.close()
         os.unlink(db_path)
     
     def test_nonexistent_waypoints(self):

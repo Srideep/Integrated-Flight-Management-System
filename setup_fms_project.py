@@ -26,6 +26,7 @@ def setup_fms_project():
         print(f"   ✓ Database contains {len(waypoints)} waypoints:")
         for wp in waypoints:
             print(f"     - {wp.identifier} ({wp.waypoint_type}): {wp.latitude:.4f}, {wp.longitude:.4f}")
+        nav_db.close()
     except Exception as e:
         print(f"   ✗ Navigation database setup failed: {e}")
         return False
