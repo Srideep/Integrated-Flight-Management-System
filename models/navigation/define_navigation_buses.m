@@ -20,21 +20,21 @@ function define_navigation_buses()
 
     % Create an array to hold the elements of the bus
     PositionElements(1) = Simulink.BusElement;
-    PositionElements(1).Name = 'latitude';
+    PositionElements(1).Name = 'Latitude';
     PositionElements(1).DataType = 'double';
     PositionElements(1).Min = -90;
     PositionElements(1).Max = 90;
     PositionElements(1).Unit = 'deg';
 
     PositionElements(2) = Simulink.BusElement;
-    PositionElements(2).Name = 'longitude';
+    PositionElements(2).Name = 'Longitude';
     PositionElements(2).DataType = 'double';
     PositionElements(2).Min = -180;
     PositionElements(2).Max = 180;
     PositionElements(2).Unit = 'deg';
 
     PositionElements(3) = Simulink.BusElement;
-    PositionElements(3).Name = 'altitude';
+    PositionElements(3).Name = 'Altitude';
     PositionElements(3).DataType = 'double';
     PositionElements(3).Min = -5000; % Allow for ground elevation variance
     PositionElements(3).Max = 60000;
@@ -86,19 +86,24 @@ function define_navigation_buses()
     NavigationBus = Simulink.Bus;
 
     NavigationElements(1) = Simulink.BusElement;
-    NavigationElements(1).Name = 'CrossTrackError_nm';
+    NavigationElements(1).Name = 'CrossTrackError';
     NavigationElements(1).DataType = 'double';
     NavigationElements(1).Unit = 'nautical_miles';
 
     NavigationElements(2) = Simulink.BusElement;
-    NavigationElements(2).Name = 'DistanceToGo_nm';
+    NavigationElements(2).Name = 'DistanceToGo';
     NavigationElements(2).DataType = 'double';
     NavigationElements(2).Unit = 'nautical_miles';
 
     NavigationElements(3) = Simulink.BusElement;
-    NavigationElements(3).Name = 'DesiredCourse_deg';
+    NavigationElements(3).Name = 'DesiredCourse';
     NavigationElements(3).DataType = 'double';
     NavigationElements(3).Unit = 'deg';
+
+    NavigationElements(4) = Simulink.BusElement;
+    NavigationElements(4).Name = 'BankAngleCmd';
+    NavigationElements(4).DataType = 'double';
+    NavigationElements(4).Unit = 'degrees';
 
     % Assign the elements to the bus object
     NavigationBus.Elements = NavigationElements;
