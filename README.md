@@ -145,7 +145,7 @@ This will:
 ### 2. Test Individual Components
 ```bash
 # Test navigation database
-python tests/test_nav_database.py
+python tests/unit_tests/python_modules/test_nav_database.py
 
 # Test flight planning system  
 python tests/unit_tests/python_modules/test_flight_planning.py
