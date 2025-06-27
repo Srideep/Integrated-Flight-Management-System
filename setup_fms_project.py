@@ -8,6 +8,8 @@ Sets up the navigation database and creates sample flight plans
 import os
 import sys
 from python_modules.nav_database.nav_data_manager import NavigationDatabase
+from python_modules.nav_database.airway_database import AirwayDatabase
+from python_modules.nav_database.procedure_database import ProcedureDatabase
 from python_modules.flight_planning.flight_plan_manager import FlightPlanManager
 
 def setup_fms_project():
@@ -20,6 +22,11 @@ def setup_fms_project():
     try:
         nav_db = NavigationDatabase('data/nav_database/navigation.db')
         print("   ✓ Navigation database created successfully")
+
+        # Initialize airway and procedure databases
+        AirwayDatabase('data/nav_database/airways.db')
+        ProcedureDatabase('data/nav_database/procedures.db')
+        print("   ✓ Airways and procedures databases created")
         
         # List available waypoints
         waypoints = nav_db.list_all_waypoints()

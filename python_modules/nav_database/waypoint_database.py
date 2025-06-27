@@ -129,6 +129,14 @@ class WaypointDatabase:
         self.connection.commit()
         logger.info("Waypoint database tables and indexes created")
 
+    def calculate_distance(self, lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+        """Wrapper for distance calculation"""
+        return calculate_distance(lat1, lon1, lat2, lon2)
+
+    def calculate_bearing(self, lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+        """Wrapper for bearing calculation"""
+        return calculate_bearing(lat1, lon1, lat2, lon2)
+
     def add_waypoint(self, waypoint: Waypoint) -> bool:
         """Add or update a waypoint in the database"""
         try:
