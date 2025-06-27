@@ -13,14 +13,15 @@ function testBasicCalculation(testCase)
     % Test basic calculation with example inputs.
     %
     % For this test, we assume that moving from (0,0) to (1,0)
-    % yields an approximate distance of 111.195 km (for 1 degree latitude difference)
-    % and a bearing of 0 degrees (north).
+    % yields an approximate distance of 60.04 nautical miles
+    % (1 degree of latitude) and a bearing of 0 degrees (north).
     %
     % NOTE: These expected values are based on common approximations.
     % Adjust the expected values according to the actual implementation details
     % of calculate_distance_bearing.
 
-    expectedDistance = 111.195;  % approximate distance in kilometers
+    % Distance returned by calculate_distance_bearing is in nautical miles
+    expectedDistance = 60.04046;  % approximate distance in nautical miles
     expectedBearing  = 0;         % bearing in degrees (north)
 
     % Call the function under test.
