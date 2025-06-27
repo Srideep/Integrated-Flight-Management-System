@@ -145,7 +145,7 @@ This will:
 ### 2. Test Individual Components
 ```bash
 # Test navigation database
-python tests/test_nav_database.py
+python tests/unit_tests/python_modules/test_nav_database.py
 
 # Test flight planning system  
 python tests/unit_tests/python_modules/test_flight_planning.py
@@ -206,6 +206,10 @@ nearby = nav_db.find_waypoints_in_radius(37.6213, -122.3790, 50)  # 50nm radius
 
 # Get airway waypoints
 v334_waypoints = nav_db.get_airway_waypoints('V334')
+
+# Get procedure waypoints
+sid_wps = nav_db.get_procedure_waypoints('TEST_SID')
+star_wps = nav_db.get_procedure_waypoints('TEST_STAR')
 ```
 
 ## ✈️ Flight Planning System

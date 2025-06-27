@@ -64,7 +64,7 @@ def search_waypoints_near_bridge(lat: float, lon: float, radius_nm: float = 50.0
     if not _waypoint_database:
         return []
     
-    waypoints = _waypoint_database.find_waypoints_in_radius(lat, lon, radius_nm)
+    results = _waypoint_database.find_waypoints_in_radius(lat, lon, radius_nm)
     return [
         {
             'identifier': wp.identifier,
@@ -74,9 +74,9 @@ def search_waypoints_near_bridge(lat: float, lon: float, radius_nm: float = 50.0
             'frequency': wp.frequency,
             'region': wp.region,
             'country': wp.country,
-            'distance_nm': _waypoint_database.calculate_distance(lat, lon, wp.latitude, wp.longitude)
+            'distance_nm': dist
         }
-        for wp in waypoints
+        for wp, dist in results
     ]
 
 def find_waypoints_by_type_bridge(waypoint_type: str) -> List[Dict[str, Any]]:

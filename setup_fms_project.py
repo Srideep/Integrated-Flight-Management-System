@@ -8,6 +8,8 @@ Sets up the navigation database and creates sample flight plans
 import os
 import sys
 from python_modules.nav_database.nav_data_manager import NavigationDatabase
+from python_modules.nav_database.airway_database import AirwayDatabase
+from python_modules.nav_database.procedure_database import ProcedureDatabase
 from python_modules.flight_planning.flight_plan_manager import FlightPlanManager
 
 def setup_fms_project():
@@ -20,6 +22,11 @@ def setup_fms_project():
     try:
         nav_db = NavigationDatabase('data/nav_database/navigation.db')
         print("   ✓ Navigation database created successfully")
+
+        # Initialize airway and procedure databases
+        AirwayDatabase('data/nav_database/airways.db')
+        ProcedureDatabase('data/nav_database/procedures.db')
+        print("   ✓ Airways and procedures databases created")
         
         # List available waypoints
         waypoints = nav_db.list_all_waypoints()
@@ -115,9 +122,8 @@ def setup_fms_project():
     print("3. Running System Tests...")
     
     # Import and run test modules
-    sys.path.append('tests')
-    from test_nav_database import test_navigation_database
-    from test_flight_planning import test_flight_planning
+    from tests.unit_tests.python_modules.test_nav_database import test_navigation_database
+    from tests.unit_tests.python_modules.test_flight_planning import test_flight_planning
     
     if test_navigation_database():
         print("   ✓ Navigation database tests passed")
@@ -140,7 +146,7 @@ def setup_fms_project():
     print("   >> test_matlab_python_bridge")
     print()
     print("2. To test individual components:")
-    print("   python tests/test_nav_database.py")
+    print("   python tests/unit_tests/python_modules/test_nav_database.py")
     print("   python tests/unit_tests/python_modules/test_flight_planning.py")
     print()
     print("3. The navigation database is ready at: data/nav_database/navigation.db")
