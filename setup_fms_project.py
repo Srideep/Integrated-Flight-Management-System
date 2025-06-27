@@ -122,9 +122,8 @@ def setup_fms_project():
     print("3. Running System Tests...")
     
     # Import and run test modules
-    sys.path.append('tests')
-    from test_nav_database import test_navigation_database
-    from test_flight_planning import test_flight_planning
+    from tests.unit_tests.python_modules.test_nav_database import test_navigation_database
+    from tests.unit_tests.python_modules.test_flight_planning import test_flight_planning
     
     if test_navigation_database():
         print("   ✓ Navigation database tests passed")
@@ -147,7 +146,7 @@ def setup_fms_project():
     print("   >> test_matlab_python_bridge")
     print()
     print("2. To test individual components:")
-    print("   python tests/test_nav_database.py")
+    print("   python tests/unit_tests/python_modules/test_nav_database.py")
     print("   python tests/unit_tests/python_modules/test_flight_planning.py")
     print()
     print("3. The navigation database is ready at: data/nav_database/navigation.db")
