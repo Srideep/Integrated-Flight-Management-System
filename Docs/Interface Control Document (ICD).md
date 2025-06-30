@@ -1,8 +1,8 @@
-# **Integration Test Plan (ITP)**
+# **Interface Control Document (ICD)**
 
 ## **Integrated Flight Management System (FMS)**
 
-| Document ID: | FMS-ITP-001 |
+| Document ID: | FMS-ICD-001 |
 | :---- | :---- |
 | **Version:** | 1.0 |
 | **Date:** | June 20, 2025 |
@@ -12,73 +12,90 @@
 
 #### **1.1 Purpose**
 
-This document describes the plan and procedures for conducting integration testing on the Integrated Flight Management System (FMS). The goal of integration testing is to verify the correct functionality of the interfaces between software components and to ensure the system operates as a cohesive whole.
+This Interface Control Document (ICD) defines the interface between the MATLAB/Simulink environment and the Python backend of the Integrated Flight Management System (FMS). It provides a precise contract for data exchange, function signatures, and data structures, ensuring stable and reliable communication between the two components.
 
 #### **1.2 Scope**
 
-This test plan covers the integration between the MATLAB/Simulink environment and the Python backend. It includes tests for the MATLAB-Python bridge, data flow from the database to the simulation, and the end-to-end flight planning and execution workflow.
+This document details every function exposed by the matlab\_python\_bridge.py module, including its input parameters, return values, and their corresponding data types in both Python and MATLAB. It also defines the structure of key Simulink Buses used for data transmission.
 
-### **2\. Test Strategy**
+### **2\. MATLAB-to-Python Interface**
 
-#### **2.1 Approach**
+This section details the functions available in matlab\_python\_bridge.py that can be called from the MATLAB environment.
 
-Integration testing will be performed in a bottom-up fashion.
+#### **2.1 Initialization**
 
-1. **Bridge Interface Testing:** First, the individual functions of the matlab\_python\_bridge will be tested from MATLAB to ensure basic connectivity and data type compatibility.  
-2. **Component Interaction Testing:** Next, tests will be conducted to verify the interaction between high-level components (e.g., verifying that the FlightPlanManager can correctly query the NavigationDatabase).  
-3. **End-to-End Scenario Testing:** Finally, full workflow scenarios will be executed, simulating a complete flight from planning to landing to validate the entire integrated system.
+**initialize\_fms\_bridge()**
 
-#### **2.2 Test Environment**
+* **Description:** Initializes the bridge, creating instances of the Python managers. Must be called before any other bridge function.  
+* **Python Signature:** initialize\_fms\_bridge() \-\> bool  
+* **MATLAB Call:** status \= py.interfaces.matlab\_python\_bridge.initialize\_fms\_bridge();  
+* **Return (MATLAB):** logical (true on success, false on failure).
 
-* **Hardware:** A host computer meeting the system requirements specified in the SRS.  
-* **Software:** MATLAB R2021b (or later), Python 3.8+, and all required libraries.  
-* **Test Scripts:** A combination of MATLAB .m scripts and Python pytest files located in the tests/integration\_tests/ directory.
+#### **2.2 Flight Plan Management**
 
-### **3\. Test Cases**
+**create\_flight\_plan\_bridge()**
 
-#### **3.1 Bridge Connectivity and Data Type Tests**
+* **Description:** Creates a new flight plan from a list of waypoint identifiers.  
+* **Python Signature:** create\_flight\_plan\_bridge(name: str, departure: str, arrival: str, route\_list: List\[str\]) \-\> bool  
+* **MATLAB Call:** status \= py.interfaces.matlab\_python\_bridge.create\_flight\_plan\_bridge('MyPlan', 'KSFO', 'KOAK', {'SFO'});  
+* **Return (MATLAB):** logical (true on success).
 
-| Test Case ID | Test Description | Expected Result |
-| :---- | :---- | :---- |
-| **IT-01** | From MATLAB, call initialize\_fms\_bridge(). | The function returns true. Subsequent calls to test\_bridge\_connection() show an initialized state. |
-| **IT-02** | From MATLAB, call find\_waypoint\_bridge() for a known waypoint. | A MATLAB struct is returned with the correct waypoint data. |
-| **IT-03** | From MATLAB, call get\_current\_leg\_bridge() when no active plan is set. | The function returns an empty value (e.g., \[\] or None). |
+**get\_current\_leg\_bridge()**
 
-#### **3.2 Data Flow and Workflow Tests**
+* **Description:** Retrieves the start and end waypoints of the currently active flight leg. Called every simulation step.  
+* **Python Signature:** get\_current\_leg\_bridge() \-\> Optional\[Dict\[str, Any\]\]  
+* **MATLAB Call:** leg\_struct \= py.interfaces.matlab\_python\_bridge.get\_current\_leg\_bridge();  
+* **Return (MATLAB):** struct with the following fields:  
+  * start\_waypoint (struct: identifier, latitude, longitude, altitude)  
+  * end\_waypoint (struct: identifier, latitude, longitude, altitude)  
+  * leg\_index (double)
 
-| Test Case ID | Test Description | Expected Result |
-| :---- | :---- | :---- |
-| **IT-04** | **Create and Activate Plan:** From MATLAB, create a simple flight plan (KSFO-SFO-KOAK). Set it as the active plan. Call get\_current\_leg\_bridge(). | The returned struct shows "KSFO" as the start waypoint and "SFO" as the end waypoint. |
-| **IT-05** | **Waypoint Sequencing:** Building on IT-04, call advance\_to\_next\_leg\_bridge(). Then call get\_current\_leg\_bridge() again. | The returned struct now shows "SFO" as the start waypoint and "KOAK" as the end waypoint. |
-| **IT-06** | **Live Modification:** Building on IT-05, call insert\_waypoint\_bridge() to insert "WESLA" between SFO and KOAK. Call get\_current\_leg\_bridge(). | The returned struct now shows "SFO" as the start waypoint and "WESLA" as the end waypoint. |
+**advance\_to\_next\_leg\_bridge()**
 
-#### **3.3 End-to-End Scenario Tests**
+* **Description:** Instructs the flight plan manager to sequence to the next leg.  
+* **Python Signature:** advance\_to\_next\_leg\_bridge() \-\> bool  
+* **MATLAB Call:** status \= py.interfaces.matlab\_python\_bridge.advance\_to\_next\_leg\_bridge();  
+* **Return (MATLAB):** logical (true if successful, false if at end of route).
 
-| Test Case ID | Test Description | Expected Result |
-| :---- | :---- | :---- |
-| **IT-07** | **Full Flight Scenario:** |  |
+*(This section would continue for all 21+ functions in the bridge, detailing each one explicitly.)*
 
-1. Use the Flight\_Plan\_Entry.mlapp GUI to create a 5-waypoint flight plan.  
-2. Save the flight plan to a file.  
-3. Clear the system, then load the plan from the file.  
-4. Activate the plan.  
-5. Run the FMS\_Master\_Model.slx simulation. | 1\. The aircraft correctly sequences through all 5 waypoints.  
-6. The Flight\_Data\_Display accurately shows the aircraft's position relative to the flight plan track.  
-7. The simulation completes without errors. |
+### **3\. Simulink Bus Definitions**
 
-### **4\. Entry and Exit Criteria**
+This section defines the structure of the primary Simulink buses used to pass data within the simulation models.
 
-#### **4.1 Entry Criteria**
+#### **3.1 PositionBus**
 
-* All components must have passed their individual unit tests.  
-* The test environment must be correctly configured.  
-* The software must be built and deployed to the test environment.
+* **Description:** Contains the aircraft's current position information.  
+* **Source:** Aircraft\_Dynamics.slx  
+* Elements:  
+  | Element Name | Data Type | Units | Description |  
+  | :--- | :--- | :--- | :--- |  
+  | Latitude | double | degrees | Geodetic Latitude |  
+  | Longitude | double | degrees | Geodetic Longitude |  
+  | Altitude | double | feet | Altitude above mean sea level |
 
-#### **4.2 Exit Criteria**
+#### **3.2 NavigationBus**
 
-* 100% of all planned integration test cases must be executed.  
-* A minimum of 95% of test cases must pass.  
-* There shall be no open "Blocker" or "Critical" priority defects.
-### **5. Test Automation**
+* **Description:** Contains the output of the navigation and guidance calculations.  
+* **Source:** Navigation\_Calculations.slx  
+* Elements:  
+  | Element Name | Data Type | Units | Description |  
+  | :--- | :--- | :--- | :--- |  
+  | CrossTrackError | double | nautical miles | Perpendicular distance from track |  
+  | DistanceToGo | double | nautical miles | Distance to active waypoint |  
+  | DesiredCourse | double | degrees | Bearing to active waypoint |  
+  | BankAngleCmd | double | degrees | Commanded bank angle for LNAV |
 
-Integration tests are executed using the `run_fms_integration_tests()` script referenced in the README. This harness invokes all MATLAB and Python test components, ensuring the full workflow operates within the performance limits specified.
+#### **3.3 FMSModeBus**
+
+* **Description:** Contains the current status of the FMS modes.  
+* **Source:** FMS\_Mode\_Logic.sfx  
+* Elements:  
+  | Element Name | Data Type | Units | Description |  
+  | :--- | :--- | :--- | :--- |  
+  | ActiveLateralMode | Enum: FMSLatMode | N/A | (e.g., LNAV, HDG, NAV) |  
+  | ActiveVerticalMode | Enum: FMSVertMode | N/A | (e.g., VNAV, ALT, VS) |  
+  | ArmedLateralMode | Enum: FMSLatMode | N/A | Armed lateral mode |
+### **4. Performance Considerations**
+
+The interface is designed to support the update rates specified in the README performance table. Function calls from MATLAB to Python must complete within 20 ms to maintain the 50 Hz navigation loop. Data exchanged via the defined buses should therefore remain lightweight to avoid latency.
