@@ -1,38 +1,80 @@
-# Integrated Flight‑Management System — Requirements Traceability Matrix (RTM)
+# Interface Control Document (ICD)
 
-> **Document ID:** FMS‑RTM‑001  **Version:** 1.0  **Date:** 2025‑06‑30
+> **Document ID:** FMS-ICD-001  **Version:** 1.0  **Date:** 2025-06-30
 
-The matrix links every requirement stated in the **System Requirements Specification (SRS)** to the corresponding **design artefacts**, **implementation components**, and **verification evidence** drawn from the SDD, ICD, DDD, ITP, and the codebase.  Requirements are grouped exactly as they appear in the SRS so auditors can cross‑reference one‑for‑one.
+This document defines the published buses, message topics and timing
+budgets for the Integrated Flight Management System.  The interfaces
+implement the requirements traced in the RTM (FMS-RTM-001) and are
+referenced throughout the SDD and DDD.
 
-| Req ID     | Requirement Statement                                                       | Design / Doc Reference      | Implementation Artefact(s)                                      | Verification Artefact(s)             | Verification Method |
-| ---------- | --------------------------------------------------------------------------- | --------------------------- | --------------------------------------------------------------- | ------------------------------------ | ------------------- |
-| **FR‑1.1** | Use an SQLite DB to store navigation data (waypoints, airways, procedures). | DDD §2.1 & ERD              | `nav_database/waypoints.db`, `nav_database/nav_data_manager.py` | `db_schema_tests.py`                 | **INS/TST**         |
-| **FR‑1.2** | Provide a Python CRUD interface for the nav DB.                             | ICD §2, SDD §3.2            | `nav_data_manager.py` API                                       | `tNavCRUD.py`, bridge function tests | **TST**             |
-| **FR‑1.3** | Find waypoint by unique identifier.                                         | DDD §3.1                    | `nav_data_manager.find_waypoint()`                              | `tFindWaypoint.py`                   | **TST**             |
-| **FR‑1.4** | Find all waypoints within a radius of a lat/long point.                     | DDD §3.1, README perf table | `nav_data_manager.find_nearby()`                                | `tRadiusSearch.py`                   | **TST**             |
-| **FR‑2.1** | Create flight plan (dep, arr, route).                                       | SDD §3.2, GUI spec          | `flight_plan_manager.py`, `Flight_Plan_Entry.mlapp`             | `tCreatePlan.py`                     | **TST/DEM**         |
-| **FR‑2.2** | Validate user‑entered waypoints against DB.                                 | SDD §3.2                    | `flight_plan_manager.validate()`                                | `tPlanValidation.py`                 | **TST**             |
-| **FR‑2.3** | Save flight plan to JSON.                                                   | SDD §3.2                    | `flight_plan_manager.save_json()`                               | `tSavePlan.py`                       | **TST**             |
-| **FR‑2.4** | Load flight plan from JSON.                                                 | SDD §3.2                    | `flight_plan_manager.load_json()`                               | `tLoadPlan.py`                       | **TST**             |
-| **FR‑2.5** | Live modification of active flight plan (insert / delete waypoint).         | SDD §3.2                    | `flight_plan_manager.insert_waypoint()`, `delete_waypoint()`    | `tLiveEdit.py`                       | **TST**             |
-| **FR‑3.1** | Calculate cross‑track error (XTE).                                          | SDD §4.1                    | `calculate_cross_track_error.m` (Simulink *XTE Calc* block)     | `tCrossTrack.m`                      | **AN/TST**          |
-| **FR‑3.2** | Calculate distance & bearing to active waypoint.                            | SDD §4.1                    | `calculate_distance_bearing.m` (*Dist/Bearing Calc* block)      | `tDistanceBearing.m`                 | **AN/TST**          |
-| **FR‑3.3** | Provide lateral guidance commands (bank‑angle).                             | SDD §4.2                    | `calculate_bank_angle_cmd.m`, `Guidance_Law.slx`                | `tBankCmd.m`, `Guidance_Sim.slxp`    | **TST**             |
-| **FR‑3.4** | Auto‑sequence to next waypoint at passage.                                  | ICD §2.2, SDD §4.3          | `flight_plan_manager.advance_to_next_leg()`                     | `tWaypointSeq.py`, ITP IT‑05         | **TST/DEM**         |
-| **FR‑4.1** | Implement hierarchical Stateflow chart for FMS modes.                       | SDD §3.1, Stateflow design  | `FMS_Mode_Logic.sfx`                                            | Code walk‑through checklist          | **INS**             |
-| **FR‑4.2** | Support parallel lateral & vertical mode management.                        | SDD §3.1                    | Same as above                                                   | `mode_parallel_test.sfx`             | **TST**             |
-| **FR‑4.3** | Manage transitions between armed & active modes.                            | SDD §3.1                    | `FMS_Mode_Logic.sfx`                                            | `tModeTransitions.sfx`               | **TST**             |
-| **PR‑1.1** | Core nav & guidance loop executes at 50 Hz.                                 | SDD timing budget, README   | `Navigation_Loop.slx` (0.02 s step)                             | `sim_timing_profile.mlx`             | **AN/DEM**          |
-| **PR‑1.2** | Flight‑data display updates ≥ 5 Hz.                                         | SDD §5, GUI spec            | `Flight_Data_Display.slx`                                       | `display_rate_test.mlx`              | **TST**             |
-| **PR‑1.3** | End‑to‑end latency < 150 ms.                                                | ICD perf note               | `nav_latency_test.mlx`                                          | `hil_latency_log.csv`                | **DEM**             |
-| **PR‑1.4** | Waypoint query returns < 10 ms under load.                                  | DDD §4                      | `db_performance_test.py`                                        | Perf log                             | **AN/TST**          |
-| **IR‑1.1** | Provide MATLAB↔Python bridge interface.                                     | ICD §2                      | `matlab_python_bridge.py`                                       | `tBridgeConnect.m`, ITP IT‑01        | **TST**             |
-| **IR‑1.2** | Bridge exposes flight‑planning & DB ops.                                    | ICD §2.2                    | Same as above                                                   | API introspection report             | **INS**             |
-| **IR‑1.3** | Data converted to compatible types.                                         | ICD §2.3                    | Type‑conversion helpers in bridge                               | `tTypeConv.m`                        | **TST**             |
-| **IR‑1.4** | Provide MATLAB App Designer GUIs.                                           | SDD apps section            | `FMS_Control_Panel.mlapp`, `Flight_Plan_Entry.mlapp`            | Demo video                           | **DEM**             |
-| **DR‑1.1** | Present flight data with aero‑style instruments.                            | SDD display section         | `Flight_Data_Display.slx`                                       | Demo video                           | **DEM**             |
-| **DR‑1.2** | Display update ≥ 5 Hz.                                                      | Same as PR‑1.2 link         | Same impl                                                       | `display_rate_test.mlx`              | **TST**             |
-| **SC‑1.1** | Follow DO‑178C practices incl. traceability & config mgmt.                  | Dev Process Plan            | Git repo with RTM, CI logs                                      | Process audit checklist              | **INS**             |
+## 1. NavigationBus signal list
 
-**Legend – Verification Method**
-**AN** = Analysis **TST** = Test (unit, integration, Monte‑Carlo, HIL) **DEM** = Demonstration / timing capture **INS** = Inspection / review
+| Signal        | Type   | Min | Nom | Max | Units | Notes |
+|---------------|--------|-----|-----|-----|-------|-------|
+| `DistanceNM`  | double | 0   | —   | 20000 | NM | distance to active WP |
+| `BearingDeg`  | double | 0   | —   | 360 | deg (true) | bearing to WP |
+| `XTE_NM`      | double | -10 | 0   | 10 | NM | + = right of course |
+| `BankCmdDeg`  | double | -25 | 0   | 25 | deg | commanded bank angle |
+
+## 2. DatabaseBus (NEW)
+
+Bus carrying on-board database I/O as mapped in the DDD §3.2 channel diagram.
+Fields sizes derive from SRS Fig. 6‑3.
+
+| Field        | Type                      | Description |
+|--------------|---------------------------|-------------|
+| `CVE_Record` | `struct` (ID, score, text) | Common vulnerability entry |
+| `SummaryTxt` | `string` ≤ 2 kB           | textual summary in UTF‑8 |
+| `QueryStatus`| `enum` {IDLE, BUSY, DONE, ERR} | query state |
+
+## 3. GuidanceBus topic
+
+The former `GuidanceCmd` topic is renamed **GuidanceBus** and contains:
+
+- `BankCmdDeg` – same signal as in NavigationBus
+- `TurnRateCmd` (`double`, deg s⁻¹, optional per RTM GDL-REQ-05)
+
+Caller/Callee table:
+
+| Source (caller) | Sink (callee) |
+|-----------------|---------------|
+| Guidance Law block | AFCS actuator node |
+
+## 4. HSI/EFIS Display lines
+
+One-way publish at 10 Hz of:
+
+- `XTE_NM` with 0.01 NM resolution (RTM UI-REQ-01)
+- `BearingDeg` rounded to 1 deg
+
+Documented in Display Interface §4.7.
+
+## 5. Timing budget
+
+| Bus/Topic    | End‑to‑End Budget |
+|--------------|------------------|
+| NavigationBus| < 50 ms |
+| DatabaseBus  | < 50 ms |
+
+## 6. Units & Frames
+
+- Distances expressed in nautical miles with Earth sphere radius
+  3440.065 NM.
+- Bearings/headings are **true**.
+- Bank angle is body‑axis roll, right positive.
+- All database text uses UTF‑8.
+
+## 7. Message & topic diagram
+
+- Add **Database Manager** block with its **DatabaseBus** path within the
+  Navigation module as shown in the SDD Fig. 5‑4.
+- Show **NavigationBus → GuidanceBus → AFCS** as bus names.
+- Include HSI subscribed topics.
+
+## 8. Verification cross‑references
+
+| Interface                | ITP Test Case |
+|--------------------------|---------------|
+| NavigationBus latency    | ITP‑NAV‑05 (`nav_latency_test.mlx`) |
+| DatabaseBus overload     | ITP‑DB‑02 (`db_burst_sim.slx`) |
+
