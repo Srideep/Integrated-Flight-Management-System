@@ -37,6 +37,8 @@ The FMS uses **SQLite 3** as its database engine. This was chosen for its server
                                                   |    ... (etc)      |  
                                                   \+-------------------+
 
+![Entity Relationship](Diagrams/Entity Relationship.png)
+
 ### **3\. Table Schemas**
 
 #### **3.1 waypoints Table**

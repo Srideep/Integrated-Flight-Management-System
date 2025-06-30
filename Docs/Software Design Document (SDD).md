@@ -28,6 +28,8 @@ This document covers the high-level architecture, component breakdown, data flow
 
 The FMS employs a multi-language, layered architecture to separate concerns and enhance modularity. The system is divided into two primary environments: a MATLAB/Simulink environment for real-time simulation and control, and a Python environment for data management and complex logic.
 
+![FMS High-Level System Workflow](Diagrams/FMS-High-Level System Workflow.png)
+
 #### **2.1 Architectural Layers**
 
 The system is organized into four distinct layers:
@@ -64,6 +66,8 @@ The system is organized into four distinct layers:
 |         LAYER 4: DATA (SQLite DBs, JSON files)                    |
 \+-------------------------------------------------------------------+
 
+![Layered Software Architecture](Diagrams/Layered Software Architecture.png)
+
 ### Module Register
 
 | Module No. | Description | Key Files |
@@ -83,16 +87,23 @@ The system is organized into four distinct layers:
   * **navigation/**: Navigation\_Calculations.slx performs real-time calculations (XTE, etc.) by calling into the Python bridge.  
   * **guidance/**: Guidance\_Law.slx computes the necessary commands to steer the aircraft based on navigation outputs.  
   * **display/**: Flight\_Data\_Display.slx visualizes the system's state.  
-* **stateflow/**:  
-  * **FMS\_Mode\_Logic.sfx**: A Stateflow chart that implements the hierarchical state machine for managing FMS modes as defined in the SRS (FR-4.1, FR-4.2).  
-* **apps/**:  
+* **stateflow/**:
+  * **FMS\_Mode\_Logic.sfx**: A Stateflow chart that implements the hierarchical state machine for managing FMS modes as defined in the SRS (FR-4.1, FR-4.2).
+  
+  ![Operational Mode State Transition](Diagrams/Operational Mode State Transition.png)
+* **apps/**:
   * Contains the MATLAB App Designer GUIs for user interaction, such as FMS\_Control\_Panel.mlapp and Flight\_Plan\_Entry.mlapp.
+
+![User Interaction Sequence](Diagrams/User Interaction Sequence.png)
 
 #### **3.2 Python Environment (python\_modules/)**
 
 * **interfaces/matlab\_python\_bridge.py**: A procedural module that provides the adapter functions called by MATLAB. It holds global instances of the manager classes to maintain state.  
 * **flight\_planning/flight\_plan\_manager.py**: A class-based module that manages the lifecycle of flight plans. It holds the active flight plan in memory, processes modifications, and coordinates with specialist modules.  
 * **nav\_database/nav\_data\_manager.py**: A class-based module that abstracts all SQLite database interactions. It provides methods for querying waypoints, airways, and other navigational data. The design uses the Connection Pool pattern to manage database connections efficiently.
+
+![Backend Class Structure](Diagrams/Backend Class Structure.png)
+![Data Validation and Retrieval Control](Diagrams/Data Validation and Retrieval Control.png)
 
 ### **4\. Data Flow Design**
 
@@ -113,6 +124,8 @@ GPS LLA  -->  distance&bearing  -->  XTE  -->  bank-cmd
 ```
 
 This entire sequence is designed to complete within the 20ms (50Hz) timeframe specified in the performance requirements (PR-1.1).
+
+![Real-Time Navigation Data Flow Sequence](Diagrams/Real-Time Navigation Data Flow Sequence.png)
 
 ### **5. Configuration Parameters**
 
