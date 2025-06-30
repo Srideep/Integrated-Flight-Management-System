@@ -8,6 +8,12 @@
 | **Date:** | June 20, 2025 |
 | **Status:** | Baseline |
 
+### Change Log
+
+| Date | Description |
+| ---- | ----------- |
+| 2025-06-30 | Updated navigation-calculation and guidance-law references. |
+
 ### **1\. Introduction**
 
 #### **1.1 Purpose**
@@ -55,8 +61,17 @@ The system is organized into four distinct layers:
                                   |  
                                   v  
 \+-------------------------------------------------------------------+  
-|         LAYER 4: DATA (SQLite DBs, JSON files)                    |  
+|         LAYER 4: DATA (SQLite DBs, JSON files)                    |
 \+-------------------------------------------------------------------+
+
+### Module Register
+
+| Module No. | Description | Key Files |
+| :---- | :---- | :---- |
+| 1 | Interface Adapter | `matlab_python_bridge.py` |
+| 2 | Flight Planning Manager | `flight_plan_manager.py` |
+| 3 | Navigation Calculations | `calculate_distance_bearing.m`, `calculate_cross_track_error.m` |
+| 4 | Guidance Law | `calculate_bank_angle_cmd.m` |
 
 ### **3\. Component Design**
 
@@ -91,8 +106,111 @@ The system is organized into four distinct layers:
 6. **MATLAB Engine** converts the dictionaries into MATLAB structs.  
 7. **Simulink** receives the structs and uses them in its navigation calculation blocks.
 
+**Algorithm Overview:** `calculate_distance_bearing` implements the Haversine distance and bearing equations. `calculate_cross_track_error` computes the perpendicular deviation from the leg. `calculate_bank_angle_cmd` converts cross-track error to a bank command using \(\phi_{cmd}=-K\cdot\mathrm{XTE}\) limited by \(\pm\mathrm{MAX\_BANK}\).
+
+```
+GPS LLA  -->  distance&bearing  -->  XTE  -->  bank-cmd
+```
+
 This entire sequence is designed to complete within the 20ms (50Hz) timeframe specified in the performance requirements (PR-1.1).
 
 ### **5. Configuration Parameters**
 
 Runtime parameters for both MATLAB and Python components are centralized for ease of tuning. Key values taken from the README include `BASE_RATE` (50 Hz), `DISPLAY_RATE` (20 Hz), and `DATABASE_PATH` for the navigation database. These parameters allow the system to meet the real-time performance targets and may be adjusted as needed.
+
+### **Annex C – Requirements-to-Code Trace Matrix**
+
+| Requirement ID | Implementation | Verification |
+| :---- | :---- | :---- |
+| NAV-REQ-03 | `calculate_distance_bearing.m` | `tDistanceBearing.m` |
+| NAV-REQ-04 | `calculate_cross_track_error.m` | `tCrossTrack.m` |
+| GDL-REQ-01 | `calculate_bank_angle_cmd.m` | `tBankCmd.m` |
+
+### **Appendix A – MATLAB Function Listings**
+
+The following functions provide the core navigation algorithms referenced in Section IV‑D. Parameters `K = 5` and `MAX_BANK = 25` degrees inside `calculate_bank_angle_cmd.m` may be tuned as needed.
+
+#### `calculate_distance_bearing.m`
+
+```matlab
+function [distance_nm, bearing_deg] = calculate_distance_bearing(lat1_deg, lon1_deg, lat2_deg, lon2_deg)
+% CALCULATE_DISTANCE_BEARING Great-circle distance and initial bearing
+%
+% Implements the Haversine distance and bearing formulas referenced in the
+% Real-Time Navigation Loop section of the SDD (FMS-SDD-001) and aligns with
+% the NavigationBus definitions in the ICD (FMS-ICD-001).
+%
+% Inputs are geographic coordinates in degrees. Outputs are distance in
+% nautical miles and bearing in degrees.
+
+lat1 = deg2rad(lat1_deg);
+lon1 = deg2rad(lon1_deg);
+lat2 = deg2rad(lat2_deg);
+lon2 = deg2rad(lon2_deg);
+
+dlat = lat2 - lat1;
+dlon = lon2 - lon1;
+a = sin(dlat/2).^2 + cos(lat1).*cos(lat2).*sin(dlon/2).^2;
+c = 2 .* atan2(sqrt(a), sqrt(1-a));
+
+R = 3440.065;
+
+distance_nm = R .* c;
+
+y = sin(dlon) .* cos(lat2);
+x = cos(lat1).*sin(lat2) - sin(lat1).*cos(lat2).*cos(dlon);
+bearing_rad = atan2(y, x);
+bearing_deg = mod(rad2deg(bearing_rad) + 360, 360);
+end
+```
+
+#### `calculate_cross_track_error.m`
+
+```matlab
+function xte_nm = calculate_cross_track_error(lat_deg, lon_deg, start_lat_deg, start_lon_deg, end_lat_deg, end_lon_deg)
+% CALCULATE_CROSS_TRACK_ERROR Compute perpendicular distance to a flight leg
+%
+% Implements the cross-track error equation referenced in the Real-Time
+% Navigation Loop of the SDD (FMS-SDD-001). Output units correspond to the
+% NavigationBus specification in the ICD (FMS-ICD-001).
+
+lat = deg2rad(lat_deg);
+lon = deg2rad(lon_deg);
+start_lat = deg2rad(start_lat_deg);
+start_lon = deg2rad(start_lon_deg);
+end_lat = deg2rad(end_lat_deg);
+end_lon = deg2rad(end_lon_deg);
+
+R = 3440.065;
+
+d13 = 2 .* asin( sqrt( sin((lat - start_lat)/2).^2 + ...
+                     cos(start_lat).*cos(lat).*sin((lon - start_lon)/2).^2 ) );
+bearing13 = atan2( sin(lon - start_lon).*cos(lat), ...
+                   cos(start_lat).*sin(lat) - sin(start_lat).*cos(lat).*cos(lon - start_lon) );
+bearing12 = atan2( sin(end_lon - start_lon).*cos(end_lat), ...
+                   cos(start_lat).*sin(end_lat) - sin(start_lat).*cos(end_lat).*cos(end_lon - start_lon) );
+
+xte_rad = asin( sin(d13) .* sin(bearing13 - bearing12) );
+xte_nm = R .* xte_rad;
+end
+```
+
+#### `calculate_bank_angle_cmd.m`
+
+```matlab
+function bank_angle_deg = calculate_bank_angle_cmd(xte_nm, bearing_deg)
+% CALCULATE_BANK_ANGLE_CMD Generate a commanded bank angle for LNAV
+%
+% Converts cross-track error to a bank angle command using a simple
+% proportional guidance law referenced in the Real-Time Navigation Loop of
+% the SDD (FMS-SDD-001). Output units are in degrees to match the
+% NavigationBus specification in the ICD (FMS-ICD-001).
+
+K = 5;           % Gain in degrees per nautical mile
+MAX_BANK = 25;   % Saturation limit in degrees
+
+bank_angle_deg = -K .* xte_nm;
+bank_angle_deg(bank_angle_deg >  MAX_BANK) =  MAX_BANK;
+bank_angle_deg(bank_angle_deg < -MAX_BANK) = -MAX_BANK;
+end
+```
