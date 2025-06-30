@@ -42,7 +42,7 @@ The FMS uses **SQLite 3** as its database engine. This was chosen for its server
 #### **3.1 waypoints Table**
 
 * **Description:** Stores all navigational points, including airports, VORs, NDBs, and intersections.  
-* **Filename:** waypoints.db
+* **Filename:** navigation.db
 
 | Column Name | Data Type | Constraints | Description |
 | :---- | :---- | :---- | :---- |
