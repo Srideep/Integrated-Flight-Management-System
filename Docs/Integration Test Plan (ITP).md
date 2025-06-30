@@ -81,4 +81,10 @@ Integration testing will be performed in a bottom-up fashion.
 * There shall be no open "Blocker" or "Critical" priority defects.
 ### **5. Test Automation**
 
-Integration tests are executed using the `run_fms_integration_tests()` script referenced in the README. This harness invokes all MATLAB and Python test components, ensuring the full workflow operates within the performance limits specified.
+Integration tests are executed by running the provided pytest scripts. For example:
+
+```bash
+pytest tests/test_bridge_interactive.py
+```
+
+These tests drive both the MATLAB and Python components, ensuring the full workflow operates within the performance limits specified.
