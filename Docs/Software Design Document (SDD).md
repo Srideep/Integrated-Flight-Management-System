@@ -118,13 +118,24 @@ This entire sequence is designed to complete within the 20ms (50Hz) timeframe sp
 
 Runtime parameters for both MATLAB and Python components are centralized for ease of tuning. Key values taken from the README include `BASE_RATE` (50 Hz), `DISPLAY_RATE` (20 Hz), and `DATABASE_PATH` for the navigation database. These parameters allow the system to meet the real-time performance targets and may be adjusted as needed.
 
-### **Annex C – Requirements-to-Code Trace Matrix**
+### Annex C — Requirements-to-Code Trace Matrix  (excerpt)
 
-| Requirement ID | Implementation | Verification |
-| :---- | :---- | :---- |
-| NAV-REQ-03 | `calculate_distance_bearing.m` | `tDistanceBearing.m` |
-| NAV-REQ-04 | `calculate_cross_track_error.m` | `tCrossTrack.m` |
-| GDL-REQ-01 | `calculate_bank_angle_cmd.m` | `tBankCmd.m` |
+| Req ID | Implementation Artefact(s) | Verification Artefact(s) | Notes |
+|--------|---------------------------|--------------------------|-------|
+| **SYS-REQ-01** | `Navigation_Loop.slx` (sample-time = 0.2 s) | `sim_timing_profile.mlx` | Real-time loop rate ≥ 4 Hz |
+| **NAV-REQ-01** | `gps_receiver.slx`  | `tGPSSensor.m` | GPS lat/lon/track ingest |
+| **NAV-REQ-02** | `calculate_cross_track_error.m` <br>Simulink block **XTE Calc** | `tCrossTrack.m` | Cross-track error calc |
+| **NAV-REQ-03** | `calculate_distance_bearing.m` <br>Simulink block **Dist/Bearing Calc** | `tDistanceBearing.m` | Great-circle distance & bearing |
+| **NAV-REQ-04** | NavigationBus wiring in top-level model | `nav_latency_test.mlx` | Publish nav signals ≤ 50 ms |
+| **GDL-REQ-01** | `calculate_bank_angle_cmd.m` <br>Simulink block **Bank Cmd** | `tBankCmd.m` | Bank-angle command ±25 deg |
+| **GDL-REQ-02** | `LNAV_6DOF.slx`, `MonteCarloHarness.mlx` | `mc_XTE_results.mat` | XTE ≤ 0.3 NM (99.9-percentile) |
+| **GDL-REQ-03** | Same as above | `mc_bank_results.mat` | |φ<sub>cmd</sub>| ≤ 30 deg (99.9-percentile) |
+| **UI-REQ-01** | `HSI_Panel.mlapp` | `ui_render_test.mlx` | Display XTE @ 0.01 NM |
+| **DOC-REQ-01** | All `+test` classes | CI coverage report | ≥ 90 % statement coverage |
+
+*Legend – Verification Method:* **TST** (unit/integration), **AN** (analysis), **DEM** (demonstration), **INS** (inspection).  
+(Methods are implicit from the artefact type; list them explicitly if your style guide requires a separate column.)
+
 
 ### **Appendix A – MATLAB Function Listings**
 
