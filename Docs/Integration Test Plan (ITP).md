@@ -32,7 +32,7 @@ Integration testing will be performed in a bottom-up fashion.
 
 * **Hardware:** A host computer meeting the system requirements specified in the SRS.  
 * **Software:** MATLAB R2021b (or later), Python 3.8+, and all required libraries.  
-* **Test Scripts:** A combination of MATLAB .m scripts and Python pytest files located in the tests/integration\_tests/ directory.
+* **Test Scripts:** MATLAB `.m` scripts and Python `pytest` files located in the `tests/` directory and its `unit_tests/` subdirectory.
 
 ### **3\. Test Cases**
 
