@@ -17,6 +17,7 @@ This Interface Control Document (ICD) defines the interface between the MATLAB/S
 #### **1.2 Scope**
 
 This document details every function exposed by the matlab\_python\_bridge.py module, including its input parameters, return values, and their corresponding data types in both Python and MATLAB. It also defines the structure of key Simulink Buses used for data transmission.
+**Repository Note:** Only the MATLAB function files under `models/` are included in this repository. All referenced Simulink (`*.slx`), Stateflow (`*.sfx`), and App Designer (`*.mlapp`) files are not included.
 
 ### **2\. MATLAB-to-Python Interface**
 
@@ -66,7 +67,7 @@ This section defines the structure of the primary Simulink buses used to pass da
 #### **3.1 PositionBus**
 
 * **Description:** Contains the aircraft's current position information.  
-* **Source:** Aircraft\_Dynamics.slx  
+* **Source:** Aircraft\_Dynamics.slx (not included in repository)  
 * Elements:  
   | Element Name | Data Type | Units | Description |  
   | :--- | :--- | :--- | :--- |  
@@ -77,7 +78,7 @@ This section defines the structure of the primary Simulink buses used to pass da
 #### **3.2 NavigationBus**
 
 * **Description:** Contains the output of the navigation and guidance calculations.  
-* **Source:** Navigation\_Calculations.slx  
+* **Source:** Navigation\_Calculations.slx (not included in repository)  
 * Elements:  
   | Element Name | Data Type | Units | Description |  
   | :--- | :--- | :--- | :--- |  
@@ -89,7 +90,7 @@ This section defines the structure of the primary Simulink buses used to pass da
 #### **3.3 FMSModeBus**
 
 * **Description:** Contains the current status of the FMS modes.  
-* **Source:** FMS\_Mode\_Logic.sfx  
+* **Source:** FMS\_Mode\_Logic.sfx (not included in repository)  
 * Elements:  
   | Element Name | Data Type | Units | Description |  
   | :--- | :--- | :--- | :--- |  

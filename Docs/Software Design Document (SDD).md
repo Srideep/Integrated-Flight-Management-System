@@ -24,6 +24,8 @@ This document provides a detailed description of the software design and archite
 
 This document covers the high-level architecture, component breakdown, data flow, and detailed design of the FMS software. This includes the MATLAB/Simulink real-time components, the Python backend services, the Stateflow mode logic, and the database architecture.
 
+**Repository Note:** Only the MATLAB function files under `models/` are included in this repository. All referenced Simulink (`*.slx`), Stateflow (`*.sfx`), and App Designer (`*.mlapp`) files are not included.
+
 ### **2\. System Architecture**
 
 The FMS employs a multi-language, layered architecture to separate concerns and enhance modularity. The system is divided into two primary environments: a MATLAB/Simulink environment for real-time simulation and control, and a Python environment for data management and complex logic.
@@ -78,15 +80,15 @@ The system is organized into four distinct layers:
 #### **3.1 MATLAB/Simulink Environment**
 
 * **models/**: Contains all Simulink models.  
-  * **FMS\_Master\_Model.slx**: The top-level model that integrates all other Simulink components.  
-  * **dynamics/**: Contains the Aircraft\_Dynamics.slx model, which simulates the aircraft's 6-DOF movement.  
-  * **navigation/**: Navigation\_Calculations.slx performs real-time calculations (XTE, etc.) by calling into the Python bridge.  
-  * **guidance/**: Guidance\_Law.slx computes the necessary commands to steer the aircraft based on navigation outputs.  
-  * **display/**: Flight\_Data\_Display.slx visualizes the system's state.  
+  * **FMS\_Master\_Model.slx (not included in repository)**: The top-level model that integrates all other Simulink components.  
+  * **dynamics/**: Contains the Aircraft\_Dynamics.slx (not included in repository) model, which simulates the aircraft's 6-DOF movement.  
+  * **navigation/**: Navigation\_Calculations.slx (not included in repository) performs real-time calculations (XTE, etc.) by calling into the Python bridge.  
+  * **guidance/**: Guidance\_Law.slx (not included in repository) computes the necessary commands to steer the aircraft based on navigation outputs.  
+  * **display/**: Flight\_Data\_Display.slx (not included in repository) visualizes the system's state.  
 * **stateflow/**:  
-  * **FMS\_Mode\_Logic.sfx**: A Stateflow chart that implements the hierarchical state machine for managing FMS modes as defined in the SRS (FR-4.1, FR-4.2).  
+  * **FMS\_Mode\_Logic.sfx (not included in repository)**: A Stateflow chart that implements the hierarchical state machine for managing FMS modes as defined in the SRS (FR-4.1, FR-4.2).  
 * **apps/**:  
-  * Contains the MATLAB App Designer GUIs for user interaction, such as FMS\_Control\_Panel.mlapp and Flight\_Plan\_Entry.mlapp.
+  * Contains the MATLAB App Designer GUIs for user interaction, such as FMS\_Control\_Panel.mlapp (not included in repository) and Flight\_Plan\_Entry.mlapp (not included in repository).
 
 #### **3.2 Python Environment (python\_modules/)**
 
@@ -98,7 +100,7 @@ The system is organized into four distinct layers:
 
 #### **4.1 Real-Time Navigation Loop**
 
-1. **Simulink (Navigation\_Calculations.slx)** calls get\_current\_leg\_bridge() via the MATLAB Engine.  
+1. **Simulink (Navigation\_Calculations.slx (not included in repository))** calls get\_current\_leg\_bridge() via the MATLAB Engine.  
 2. **Bridge (matlab\_python\_bridge.py)** receives the call and delegates it to the get\_current\_leg() method of its FlightPlanManager instance.  
 3. **Manager (flight\_plan\_manager.py)** retrieves the current start and end waypoints from its active\_plan attribute.  
 4. The data (as Python Waypoint objects) is returned to the bridge.  
@@ -122,15 +124,15 @@ Runtime parameters for both MATLAB and Python components are centralized for eas
 
 | Req ID | Implementation Artefact(s) | Verification Artefact(s) | Notes |
 |--------|---------------------------|--------------------------|-------|
-| **SYS-REQ-01** | `Navigation_Loop.slx` (sample-time = 0.2 s) | `sim_timing_profile.mlx` | Real-time loop rate ≥ 4 Hz |
-| **NAV-REQ-01** | `gps_receiver.slx`  | `tGPSSensor.m` | GPS lat/lon/track ingest |
+| **SYS-REQ-01** | `Navigation_Loop.slx (not included in repository)` (sample-time = 0.2 s) | `sim_timing_profile.mlx` | Real-time loop rate ≥ 4 Hz |
+| **NAV-REQ-01** | `gps_receiver.slx (not included in repository)`  | `tGPSSensor.m` | GPS lat/lon/track ingest |
 | **NAV-REQ-02** | `calculate_cross_track_error.m` <br>Simulink block **XTE Calc** | `tCrossTrack.m` | Cross-track error calc |
 | **NAV-REQ-03** | `calculate_distance_bearing.m` <br>Simulink block **Dist/Bearing Calc** | `tDistanceBearing.m` | Great-circle distance & bearing |
 | **NAV-REQ-04** | NavigationBus wiring in top-level model | `nav_latency_test.mlx` | Publish nav signals ≤ 50 ms |
 | **GDL-REQ-01** | `calculate_bank_angle_cmd.m` <br>Simulink block **Bank Cmd** | `tBankCmd.m` | Bank-angle command ±25 deg |
-| **GDL-REQ-02** | `LNAV_6DOF.slx`, `MonteCarloHarness.mlx` | `mc_XTE_results.mat` | XTE ≤ 0.3 NM (99.9-percentile) |
+| **GDL-REQ-02** | `LNAV_6DOF.slx (not included in repository)`, `MonteCarloHarness.mlx` | `mc_XTE_results.mat` | XTE ≤ 0.3 NM (99.9-percentile) |
 | **GDL-REQ-03** | Same as above | `mc_bank_results.mat` | |φ<sub>cmd</sub>| ≤ 30 deg (99.9-percentile) |
-| **UI-REQ-01** | `HSI_Panel.mlapp` | `ui_render_test.mlx` | Display XTE @ 0.01 NM |
+| **UI-REQ-01** | `HSI_Panel.mlapp (not included in repository)` | `ui_render_test.mlx` | Display XTE @ 0.01 NM |
 | **DOC-REQ-01** | All `+test` classes | CI coverage report | ≥ 90 % statement coverage |
 
 *Legend – Verification Method:* **TST** (unit/integration), **AN** (analysis), **DEM** (demonstration), **INS** (inspection).  
