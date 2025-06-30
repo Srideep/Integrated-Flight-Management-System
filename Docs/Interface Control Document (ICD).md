@@ -1,101 +1,38 @@
-# **Interface Control Document (ICD)**
+# Integrated Flight‑Management System — Requirements Traceability Matrix (RTM)
 
-## **Integrated Flight Management System (FMS)**
+> **Document ID:** FMS‑RTM‑001  **Version:** 1.0  **Date:** 2025‑06‑30
 
-| Document ID: | FMS-ICD-001 |
-| :---- | :---- |
-| **Version:** | 1.0 |
-| **Date:** | June 20, 2025 |
-| **Status:** | Baseline |
+The matrix links every requirement stated in the **System Requirements Specification (SRS)** to the corresponding **design artefacts**, **implementation components**, and **verification evidence** drawn from the SDD, ICD, DDD, ITP, and the codebase.  Requirements are grouped exactly as they appear in the SRS so auditors can cross‑reference one‑for‑one.
 
-### **1\. Introduction**
+| Req ID     | Requirement Statement                                                       | Design / Doc Reference      | Implementation Artefact(s)                                      | Verification Artefact(s)             | Verification Method |
+| ---------- | --------------------------------------------------------------------------- | --------------------------- | --------------------------------------------------------------- | ------------------------------------ | ------------------- |
+| **FR‑1.1** | Use an SQLite DB to store navigation data (waypoints, airways, procedures). | DDD §2.1 & ERD              | `nav_database/waypoints.db`, `nav_database/nav_data_manager.py` | `db_schema_tests.py`                 | **INS/TST**         |
+| **FR‑1.2** | Provide a Python CRUD interface for the nav DB.                             | ICD §2, SDD §3.2            | `nav_data_manager.py` API                                       | `tNavCRUD.py`, bridge function tests | **TST**             |
+| **FR‑1.3** | Find waypoint by unique identifier.                                         | DDD §3.1                    | `nav_data_manager.find_waypoint()`                              | `tFindWaypoint.py`                   | **TST**             |
+| **FR‑1.4** | Find all waypoints within a radius of a lat/long point.                     | DDD §3.1, README perf table | `nav_data_manager.find_nearby()`                                | `tRadiusSearch.py`                   | **TST**             |
+| **FR‑2.1** | Create flight plan (dep, arr, route).                                       | SDD §3.2, GUI spec          | `flight_plan_manager.py`, `Flight_Plan_Entry.mlapp`             | `tCreatePlan.py`                     | **TST/DEM**         |
+| **FR‑2.2** | Validate user‑entered waypoints against DB.                                 | SDD §3.2                    | `flight_plan_manager.validate()`                                | `tPlanValidation.py`                 | **TST**             |
+| **FR‑2.3** | Save flight plan to JSON.                                                   | SDD §3.2                    | `flight_plan_manager.save_json()`                               | `tSavePlan.py`                       | **TST**             |
+| **FR‑2.4** | Load flight plan from JSON.                                                 | SDD §3.2                    | `flight_plan_manager.load_json()`                               | `tLoadPlan.py`                       | **TST**             |
+| **FR‑2.5** | Live modification of active flight plan (insert / delete waypoint).         | SDD §3.2                    | `flight_plan_manager.insert_waypoint()`, `delete_waypoint()`    | `tLiveEdit.py`                       | **TST**             |
+| **FR‑3.1** | Calculate cross‑track error (XTE).                                          | SDD §4.1                    | `calculate_cross_track_error.m` (Simulink *XTE Calc* block)     | `tCrossTrack.m`                      | **AN/TST**          |
+| **FR‑3.2** | Calculate distance & bearing to active waypoint.                            | SDD §4.1                    | `calculate_distance_bearing.m` (*Dist/Bearing Calc* block)      | `tDistanceBearing.m`                 | **AN/TST**          |
+| **FR‑3.3** | Provide lateral guidance commands (bank‑angle).                             | SDD §4.2                    | `calculate_bank_angle_cmd.m`, `Guidance_Law.slx`                | `tBankCmd.m`, `Guidance_Sim.slxp`    | **TST**             |
+| **FR‑3.4** | Auto‑sequence to next waypoint at passage.                                  | ICD §2.2, SDD §4.3          | `flight_plan_manager.advance_to_next_leg()`                     | `tWaypointSeq.py`, ITP IT‑05         | **TST/DEM**         |
+| **FR‑4.1** | Implement hierarchical Stateflow chart for FMS modes.                       | SDD §3.1, Stateflow design  | `FMS_Mode_Logic.sfx`                                            | Code walk‑through checklist          | **INS**             |
+| **FR‑4.2** | Support parallel lateral & vertical mode management.                        | SDD §3.1                    | Same as above                                                   | `mode_parallel_test.sfx`             | **TST**             |
+| **FR‑4.3** | Manage transitions between armed & active modes.                            | SDD §3.1                    | `FMS_Mode_Logic.sfx`                                            | `tModeTransitions.sfx`               | **TST**             |
+| **PR‑1.1** | Core nav & guidance loop executes at 50 Hz.                                 | SDD timing budget, README   | `Navigation_Loop.slx` (0.02 s step)                             | `sim_timing_profile.mlx`             | **AN/DEM**          |
+| **PR‑1.2** | Flight‑data display updates ≥ 5 Hz.                                         | SDD §5, GUI spec            | `Flight_Data_Display.slx`                                       | `display_rate_test.mlx`              | **TST**             |
+| **PR‑1.3** | End‑to‑end latency < 150 ms.                                                | ICD perf note               | `nav_latency_test.mlx`                                          | `hil_latency_log.csv`                | **DEM**             |
+| **PR‑1.4** | Waypoint query returns < 10 ms under load.                                  | DDD §4                      | `db_performance_test.py`                                        | Perf log                             | **AN/TST**          |
+| **IR‑1.1** | Provide MATLAB↔Python bridge interface.                                     | ICD §2                      | `matlab_python_bridge.py`                                       | `tBridgeConnect.m`, ITP IT‑01        | **TST**             |
+| **IR‑1.2** | Bridge exposes flight‑planning & DB ops.                                    | ICD §2.2                    | Same as above                                                   | API introspection report             | **INS**             |
+| **IR‑1.3** | Data converted to compatible types.                                         | ICD §2.3                    | Type‑conversion helpers in bridge                               | `tTypeConv.m`                        | **TST**             |
+| **IR‑1.4** | Provide MATLAB App Designer GUIs.                                           | SDD apps section            | `FMS_Control_Panel.mlapp`, `Flight_Plan_Entry.mlapp`            | Demo video                           | **DEM**             |
+| **DR‑1.1** | Present flight data with aero‑style instruments.                            | SDD display section         | `Flight_Data_Display.slx`                                       | Demo video                           | **DEM**             |
+| **DR‑1.2** | Display update ≥ 5 Hz.                                                      | Same as PR‑1.2 link         | Same impl                                                       | `display_rate_test.mlx`              | **TST**             |
+| **SC‑1.1** | Follow DO‑178C practices incl. traceability & config mgmt.                  | Dev Process Plan            | Git repo with RTM, CI logs                                      | Process audit checklist              | **INS**             |
 
-#### **1.1 Purpose**
-
-This Interface Control Document (ICD) defines the interface between the MATLAB/Simulink environment and the Python backend of the Integrated Flight Management System (FMS). It provides a precise contract for data exchange, function signatures, and data structures, ensuring stable and reliable communication between the two components.
-
-#### **1.2 Scope**
-
-This document details every function exposed by the matlab\_python\_bridge.py module, including its input parameters, return values, and their corresponding data types in both Python and MATLAB. It also defines the structure of key Simulink Buses used for data transmission.
-
-### **2\. MATLAB-to-Python Interface**
-
-This section details the functions available in matlab\_python\_bridge.py that can be called from the MATLAB environment.
-
-#### **2.1 Initialization**
-
-**initialize\_fms\_bridge()**
-
-* **Description:** Initializes the bridge, creating instances of the Python managers. Must be called before any other bridge function.  
-* **Python Signature:** initialize\_fms\_bridge() \-\> bool  
-* **MATLAB Call:** status \= py.interfaces.matlab\_python\_bridge.initialize\_fms\_bridge();  
-* **Return (MATLAB):** logical (true on success, false on failure).
-
-#### **2.2 Flight Plan Management**
-
-**create\_flight\_plan\_bridge()**
-
-* **Description:** Creates a new flight plan from a list of waypoint identifiers.  
-* **Python Signature:** create\_flight\_plan\_bridge(name: str, departure: str, arrival: str, route\_list: List\[str\]) \-\> bool  
-* **MATLAB Call:** status \= py.interfaces.matlab\_python\_bridge.create\_flight\_plan\_bridge('MyPlan', 'KSFO', 'KOAK', {'SFO'});  
-* **Return (MATLAB):** logical (true on success).
-
-**get\_current\_leg\_bridge()**
-
-* **Description:** Retrieves the start and end waypoints of the currently active flight leg. Called every simulation step.  
-* **Python Signature:** get\_current\_leg\_bridge() \-\> Optional\[Dict\[str, Any\]\]  
-* **MATLAB Call:** leg\_struct \= py.interfaces.matlab\_python\_bridge.get\_current\_leg\_bridge();  
-* **Return (MATLAB):** struct with the following fields:  
-  * start\_waypoint (struct: identifier, latitude, longitude, altitude)  
-  * end\_waypoint (struct: identifier, latitude, longitude, altitude)  
-  * leg\_index (double)
-
-**advance\_to\_next\_leg\_bridge()**
-
-* **Description:** Instructs the flight plan manager to sequence to the next leg.  
-* **Python Signature:** advance\_to\_next\_leg\_bridge() \-\> bool  
-* **MATLAB Call:** status \= py.interfaces.matlab\_python\_bridge.advance\_to\_next\_leg\_bridge();  
-* **Return (MATLAB):** logical (true if successful, false if at end of route).
-
-*(This section would continue for all 21+ functions in the bridge, detailing each one explicitly.)*
-
-### **3\. Simulink Bus Definitions**
-
-This section defines the structure of the primary Simulink buses used to pass data within the simulation models.
-
-#### **3.1 PositionBus**
-
-* **Description:** Contains the aircraft's current position information.  
-* **Source:** Aircraft\_Dynamics.slx  
-* Elements:  
-  | Element Name | Data Type | Units | Description |  
-  | :--- | :--- | :--- | :--- |  
-  | Latitude | double | degrees | Geodetic Latitude |  
-  | Longitude | double | degrees | Geodetic Longitude |  
-  | Altitude | double | feet | Altitude above mean sea level |
-
-#### **3.2 NavigationBus**
-
-* **Description:** Contains the output of the navigation and guidance calculations.  
-* **Source:** Navigation\_Calculations.slx  
-* Elements:  
-  | Element Name | Data Type | Units | Description |  
-  | :--- | :--- | :--- | :--- |  
-  | CrossTrackError | double | nautical miles | Perpendicular distance from track |  
-  | DistanceToGo | double | nautical miles | Distance to active waypoint |  
-  | DesiredCourse | double | degrees | Bearing to active waypoint |  
-  | BankAngleCmd | double | degrees | Commanded bank angle for LNAV |
-
-#### **3.3 FMSModeBus**
-
-* **Description:** Contains the current status of the FMS modes.  
-* **Source:** FMS\_Mode\_Logic.sfx  
-* Elements:  
-  | Element Name | Data Type | Units | Description |  
-  | :--- | :--- | :--- | :--- |  
-  | ActiveLateralMode | Enum: FMSLatMode | N/A | (e.g., LNAV, HDG, NAV) |  
-  | ActiveVerticalMode | Enum: FMSVertMode | N/A | (e.g., VNAV, ALT, VS) |  
-  | ArmedLateralMode | Enum: FMSLatMode | N/A | Armed lateral mode |
-### **4. Performance Considerations**
-
-The interface is designed to support the update rates specified in the README performance table. Function calls from MATLAB to Python must complete within 20 ms to maintain the 50 Hz navigation loop. Data exchanged via the defined buses should therefore remain lightweight to avoid latency.
+**Legend – Verification Method**
+**AN** = Analysis **TST** = Test (unit, integration, Monte‑Carlo, HIL) **DEM** = Demonstration / timing capture **INS** = Inspection / review
