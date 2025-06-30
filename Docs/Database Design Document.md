@@ -77,6 +77,29 @@ The FMS uses **SQLite 3** as its database engine. This was chosen for its server
 | waypoint\_id | INTEGER | FOREIGN KEY (waypoints.id) | Links to the waypoints table |
 | sequence\_order | INTEGER | NOT NULL | The order of the waypoint in the airway sequence |
 
+#### **3.4 procedures Table**
+
+* **Description:** Stores standard instrument departures (SID), standard terminal arrival routes (STAR), and approach procedures.
+* **Filename:** procedures.db
+
+| Column Name | Data Type | Constraints | Description |
+| :---- | :---- | :---- | :---- |
+| id | INTEGER | PRIMARY KEY AUTOINCREMENT | Unique internal identifier |
+| name | TEXT | NOT NULL | Procedure identifier |
+| type | TEXT | NOT NULL | Procedure category (SID, STAR, APP) |
+
+#### **3.5 procedure_segments Table**
+
+* **Description:** Defines the ordered list of waypoints that compose a procedure.
+* **Filename:** procedures.db
+
+| Column Name | Data Type | Constraints | Description |
+| :---- | :---- | :---- | :---- |
+| id | INTEGER | PRIMARY KEY AUTOINCREMENT | Unique internal identifier |
+| procedure_id | INTEGER | FOREIGN KEY (procedures.id) | Links to the procedures table |
+| waypoint_id | TEXT | NOT NULL | Identifier of the waypoint in the sequence |
+| sequence_order | INTEGER | NOT NULL | The order of the waypoint in the procedure |
+
 ### **4\. Database Indexes**
 
 To ensure performance meets the requirements laid out in the SRS (PR-1.4), the following indexes are implemented:
