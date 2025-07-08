@@ -12,9 +12,9 @@ import logging
 from typing import Optional, List, Dict, Any, Tuple
 
 # Import project modules directly from the package
-from ..flight_planning.flight_plan_manager import FlightPlanManager, FlightPlan
-from ..nav_database.nav_data_manager import NavigationDatabase
-from ..nav_database.waypoint_database import WaypointDatabase
+from interfaces..flight_planning.flight_plan_manager import FlightPlanManager, FlightPlan
+from interfaces..nav_database.nav_data_manager import NavigationDatabase
+from interfaces..nav_database.waypoint_database import WaypointDatabase
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
