@@ -151,6 +151,12 @@ python tests/unit_tests/python_modules/test_nav_database.py
 python tests/unit_tests/python_modules/test_flight_planning.py
 ```
 
+To run the Simulink-based navigation test in MATLAB:
+```matlab
+results = runtests('tests/units_tests/models/navigation');
+disp(results)
+```
+
 ### 3. MATLAB Integration (Phase 5)
 Once Python components are working:
 ```matlab
